@@ -81,12 +81,13 @@ public class ZoomSelection {
 		}
 	}
 
-	public IViewPart getViewPart() throws PartInitException {
+	public IViewPart getViewPart() throws PartInitException {		
 		if (secondId==null) {
 			IViewPart part = EclipseUtils.getActivePage().findView(viewId);
 			if (part==null) part = EclipseUtils.getActivePage().showView(viewId);
 			return part;
 		} else {
+			
 			final IViewReference ref = EclipseUtils.getActivePage().findViewReference(viewId, secondId);
 			if (ref ==null) return EclipseUtils.getActivePage().showView(viewId, secondId, IWorkbenchPage.VIEW_ACTIVATE);
 		    return ref != null ? ref.getView(true) : null;

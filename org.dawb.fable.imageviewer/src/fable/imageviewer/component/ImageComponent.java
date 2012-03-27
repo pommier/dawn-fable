@@ -293,6 +293,9 @@ public class ImageComponent implements IPropertyChangeListener,
 	private IWorkbenchPart3 parentPart;
 	private ActionsProvider provider;
 	private Text            statusLabel;
+	
+	
+	public static String focus ="main" ;
 
 	public ImageComponent(final IWorkbenchPart3 parentPart) {
         this(parentPart, (ActionsProvider)parentPart);
@@ -327,6 +330,8 @@ public class ImageComponent implements IPropertyChangeListener,
 	 * @see org.eclipse.ui.part.WorkbenchPart#setFocus()
 	 */
 	public void setFocus() {
+		focus=ImageComponent.SECONDARY_ID_MAIN;
+		
 		if (controls!=null) controls.setFocus();
 		
 		// Get the right side plot to show

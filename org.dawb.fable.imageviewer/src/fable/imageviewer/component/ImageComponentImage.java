@@ -354,7 +354,7 @@ public class ImageComponentImage implements IImagesVarKeys {
 			public void mouseMove(MouseEvent event) {
 				if (image != null) {
 					
-					
+					//System.out.println(ImageComponent.focus);
 					showPixelAtCursor(event.x, event.y);
 					 Cursor cursor = display.getSystemCursor(SWT.CURSOR_ARROW);						
 					// imageCanvas.setCursor(cursor);
@@ -373,6 +373,7 @@ public class ImageComponentImage implements IImagesVarKeys {
 								|| zoomSelection == ZoomSelection.PROFILE
 								|| zoomSelection == ZoomSelection.RELIEF
 								|| zoomSelection == ZoomSelection.ROCKINGCURVE) {
+							
 							
 							Rectangle selectedRectangle = new Rectangle(
 									xSelectionStart, ySelectionStart, width,
@@ -411,7 +412,13 @@ public class ImageComponentImage implements IImagesVarKeys {
 						intoselection=true;												
 					}
 					
-					else if  (((iv.getZoomSelection() == ZoomSelection.LINE)||(iv.getZoomSelection() == ZoomSelection.PROFILE)) && inselectbox(event,RectangleSelectionLine) && !inselectbox(event,RectangleLinePts1) 
+					else if ((iv.getZoomSelection() == ZoomSelection.PROFILE) && inselectbox(event,RectangleSelection) ){
+						cursor = display.getSystemCursor(SWT.CURSOR_HAND);
+						imageCanvas.setCursor(cursor);
+						intoselection=true;												
+					}
+					
+					else if  (((iv.getZoomSelection() == ZoomSelection.LINE)) && inselectbox(event,RectangleSelectionLine) && !inselectbox(event,RectangleLinePts1) 
 							 && !inselectbox(event,RectangleLinePts2) && !keydonwonselectionPTS1 && !keydonwonselectionPTS2){
 						cursor = display.getSystemCursor(SWT.CURSOR_HAND);
 						imageCanvas.setCursor(cursor);
@@ -526,7 +533,7 @@ public class ImageComponentImage implements IImagesVarKeys {
 					}
 				
 					//if click on box
-					if(clickonselection && !(iv.getZoomSelection() == ZoomSelection.RELIEF)){
+					if(clickonselection && !(iv.getZoomSelection() == ZoomSelection.RELIEF) ){
 
 						
 						//if moves again the box re calculate coordinates
@@ -1266,6 +1273,7 @@ public class ImageComponentImage implements IImagesVarKeys {
 	 *            original image coordinates.
 	 */
 	private void showSelectedArea(Rectangle rect, boolean screen) {
+		//System.out.println(ImageComponent.);
 		// if (debug || debug1) {
 		// System.out.printf(
 		// "showSelectedArea: x=%d y=%d width=%d height=%d\n",
@@ -1327,7 +1335,9 @@ public class ImageComponentImage implements IImagesVarKeys {
 					if (zoomAreaView != null) {
 						// Turn on off any selection in the zoom area
 						zoomAreaView.getImage().setSelectOn(false);
+					
 						if (!iv.isImageDiffOn()) {
+							
 							zoomAreaView.getImage().changeImageRect(origRect,
 									zoomAreaAsFloat,
 									iv.getImageModel().getFileName(),
@@ -1336,6 +1346,7 @@ public class ImageComponentImage implements IImagesVarKeys {
 									.getSecondaryId()
 									+ " " + iv.getFileName());
 						} else {
+							
 							zoomAreaView.getImage().changeImageRect(origRect,
 									zoomAreaAsFloat,
 									iv.getImageModel().getFileName(),
@@ -2090,14 +2101,12 @@ public class ImageComponentImage implements IImagesVarKeys {
 			font = new Font(display,"Arial",14,SWT.BOLD | SWT.ITALIC); 
 			legendCanvasGC.setFont(font);
 			legendCanvasGC.drawText(Float.toString((float)max), 0, 0);
-			System.out.println("iiiiii");
 		}
 			
 		 if (maxLenghInt>=2 && maxLenghInt<6|| max==0){
 			font = new Font(display,"Arial",14,SWT.BOLD | SWT.ITALIC); 
 			legendCanvasGC.setFont(font);
 			legendCanvasGC.drawText(Integer.toString((int)max), 0, 0);	
-			System.out.println("ooooo");
 		}
 		else if (6<=maxLenghInt){				
 			font = new Font(display,"Arial",11,SWT.BOLD | SWT.ITALIC); 
