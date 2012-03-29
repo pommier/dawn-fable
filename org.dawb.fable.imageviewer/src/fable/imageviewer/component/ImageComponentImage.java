@@ -250,8 +250,18 @@ public class ImageComponentImage implements IImagesVarKeys {
 	private int tempHeight;
 	private int tempWidthArea;
 	private int tempHeightArea;
+	private boolean resize=false;
+	private int resizeX;
+	private int resizeY;
+	private int resizeWidth;
+	private int resizeHeight;
+	private Rectangle rectangleResize;
+	private int testnb=0;
 	
 	private Rectangle RectangleSelection;
+	public static GC imageCanvasCopyGC;
+	private int test=5;
+	public int initnb=0;
 
 	/**
 	 * Constructor.
@@ -278,6 +288,7 @@ public class ImageComponentImage implements IImagesVarKeys {
 		if (iv == null || controls == null)
 			return;
 
+	
 
 		
 		imageCanvas = controls.getImageCanvas();
@@ -294,6 +305,18 @@ public class ImageComponentImage implements IImagesVarKeys {
 
 		//
 		imageCanvasGC = new GC(imageCanvas);
+		initnb=initnb+1;
+		System.out.println("---------------------------INITIALIZE-------------");
+		System.out.println(imageCanvasGC);
+		System.out.println(initnb);
+		imageCanvasCopyGC=imageCanvasGC;
+		System.out.println("**main***");
+		System.out.println(ImageComponent.imageCanvasMainGC);
+		System.out.println("***Zoom***");
+		System.out.println(ImageView.imageCanvasZoomGC);
+		System.out.println("--------------------------------------------------");
+		
+		
 		Rectangle bounds = imageCanvas.getBounds();
 		canvasWidth = bounds.width;
 		canvasHeight = bounds.height;
@@ -359,8 +382,9 @@ public class ImageComponentImage implements IImagesVarKeys {
 					 Cursor cursor = display.getSystemCursor(SWT.CURSOR_ARROW);						
 					// imageCanvas.setCursor(cursor);
 					
+					// System.out.println(ImageComponent.shareFocus);
 					
-					if (selectingOn && !keydownOnSelection) {
+					if (selectingOn && !keydownOnSelection  ) {
 						cursor = display.getSystemCursor(SWT.CURSOR_HAND);
 						imageCanvas.setCursor(cursor);
 						int width = event.x - xSelectionStart;
@@ -384,6 +408,9 @@ public class ImageComponentImage implements IImagesVarKeys {
 							imageCanvasGC.setXORMode(true);
 							imageCanvasGC.drawRectangle(selectedRectangle);
 							imageCanvasGC.setXORMode(false);
+							
+							
+						
 						} else if ((zoomSelection == ZoomSelection.LINE) && !keydonwonselectionPTS1 && !keydonwonselectionPTS2 && !clickonselection)  {
 							// imageCanvasGC.setLineWidth(iv.getLinePeakWidth());
 							imageCanvasGC.setXORMode(true);
@@ -394,13 +421,15 @@ public class ImageComponentImage implements IImagesVarKeys {
 							
 						} else if (zoomSelection == ZoomSelection.NONE) {
 							// Do nothing
-						}					
+						}		
+						
+						
 					}
+
 					
 					
 					
-					
-					if ((iv.getZoomSelection() == ZoomSelection.AREA) && inselectbox(event,RectangleSelection) ){
+					if ((iv.getZoomSelection() == ZoomSelection.AREA) && inselectbox(event,RectangleSelection)  ){
 						cursor = display.getSystemCursor(SWT.CURSOR_HAND);
 						imageCanvas.setCursor(cursor);
 						intoselection=true;												
@@ -532,43 +561,8 @@ public class ImageComponentImage implements IImagesVarKeys {
 		
 					}
 				
-					//if click on box
-					if(clickonselection && !(iv.getZoomSelection() == ZoomSelection.RELIEF) ){
-
-						
-						//if moves again the box re calculate coordinates
-						if(nbBoxSelected>=2){
-							secondSelectionX=varX;
-							secondSelectionY=varY;
-						}
-									
-						drawImage(false);
-						Rectangle selectedRectangle = null;
-						selectedArea.x=event.x+secondSelectionX-startX;
-					 	selectedArea.y=event.y+secondSelectionY-startY;
-			
-						
-						 selectedRectangle = new Rectangle(
-								selectedArea.x, selectedArea.y, selectionWidth,
-								selectionHeight);
 					
-						RectangleSelection=selectedRectangle;									
-
-						//box redrew each moves
-						imageCanvasGC.setForeground(display
-								.getSystemColor(SWT.COLOR_WHITE));
-						drawImage(false);
-						imageChanged = true;
-						newSelection = true;
-						if (debug1) {
-							System.out.println("\nmouseUp calling showSelection "
-									+ "imageChanged=" + imageChanged);
-							System.out.printf("  \"%s\"\n", iv.getPartName());
-						}
-						showSelection(false); //redraw the canvas each moves			
-					}		
-					
-					else if(clickonselection && (iv.getZoomSelection() == ZoomSelection.RELIEF)){
+					 if(clickonselection && (iv.getZoomSelection() == ZoomSelection.RELIEF)){
 				
 						//if moves again the box re calculate coordinates
 						if(nbBoxSelected>=2){
@@ -613,6 +607,43 @@ public class ImageComponentImage implements IImagesVarKeys {
 						}
 						
 					}
+					 
+
+						//if click on box
+					 else if (clickonselection){
+
+							
+							//if moves again the box re calculate coordinates
+							if(nbBoxSelected>=2){
+								secondSelectionX=varX;
+								secondSelectionY=varY;
+							}
+										
+							drawImage(false);
+							Rectangle selectedRectangle = null;
+							selectedArea.x=event.x+secondSelectionX-startX;
+						 	selectedArea.y=event.y+secondSelectionY-startY;
+				
+							
+							 selectedRectangle = new Rectangle(
+									selectedArea.x, selectedArea.y, selectionWidth,
+									selectionHeight);
+						
+							RectangleSelection=selectedRectangle;									
+
+							//box redrew each moves
+							imageCanvasGC.setForeground(display
+									.getSystemColor(SWT.COLOR_WHITE));
+							drawImage(false);
+							imageChanged = true;
+							newSelection = true;
+							if (debug1) {
+								System.out.println("\nmouseUp calling showSelection "
+										+ "imageChanged=" + imageChanged);
+								System.out.printf("  \"%s\"\n", iv.getPartName());
+							}
+							showSelection(false); //redraw the canvas each moves			
+						}		
 				}			
 			}
 		});
@@ -673,7 +704,20 @@ public class ImageComponentImage implements IImagesVarKeys {
 		
 
 			public void mouseDown(MouseEvent ev) {
+				/*******************/
+				testnb=testnb+1;
+				System.out.println(testnb);
+				if (!ImageComponent.Zoombox){
+					
+
+		
+				}
+				if (ImageComponent.Zoombox){
+					
 	
+				}
+				
+				/*******************/
 			
 				if (image == null)
 					return;
@@ -724,9 +768,34 @@ public class ImageComponentImage implements IImagesVarKeys {
 				
 				
 				
+			
 			}
-
 			public void mouseUp(MouseEvent ev) {
+				
+				if(resize){
+								
+					drawImage(false);
+					
+					selectedArea.x=10;
+				 	selectedArea.y=10;
+				 	selectedArea.width=10;
+		
+					
+				 	//imageCanvasGC=imageCanvasGCMain;
+
+					ImageComponent.imageCanvasMainGC.setForeground(display
+							.getSystemColor(SWT.COLOR_WHITE));
+					drawImage(false);
+					imageChanged = true;
+					newSelection = true;
+					if (debug1) {
+						System.out.println("\nmouseUp calling showSelection "
+								+ "imageChanged=" + imageChanged);
+						System.out.printf("  \"%s\"\n", iv.getPartName());
+					}
+					showSelection(false);
+					resize=false;
+				}
 				
 				//calculate the original coordinate of the first and the second point
 				if (!keydonwonselectionPTS1 && !keydonwonselectionPTS2 ){
@@ -925,6 +994,7 @@ public class ImageComponentImage implements IImagesVarKeys {
 	 * imageRect and the imageModel.
 	 */
 	public void calculateMainRectangles() {
+		
 		origRect = iv.getImageModel().getRect(); // Only used here
 		orientedOrigRect.x = 0; // KE: x,y not used -> this could be a Point
 		orientedOrigRect.y = 0;
@@ -1030,9 +1100,21 @@ public class ImageComponentImage implements IImagesVarKeys {
 				|| zoomSelection == ZoomSelection.RELIEF
 				|| zoomSelection == ZoomSelection.ROCKINGCURVE) {
 			if (!force) {
+				if (!resize){
 				imageCanvasGC.setXORMode(true);
 				imageCanvasGC.drawRectangle(selectedArea);
 				imageCanvasGC.setXORMode(false);
+				}
+				else{
+					System.out.println("redraw");
+
+					ImageComponent.imageCanvasMainGC.setForeground(display
+							.getSystemColor(SWT.COLOR_WHITE));
+			
+					ImageComponent.imageCanvasMainGC.setXORMode(true);
+					ImageComponent.imageCanvasMainGC.drawRectangle(selectedArea);
+					ImageComponent.imageCanvasMainGC.setXORMode(false);
+				}
 			}
 			if (imageChanged || force) showSelectedArea(selectedArea, true);
 			selectOn = true;
@@ -1084,11 +1166,15 @@ public class ImageComponentImage implements IImagesVarKeys {
 	 */
 	public void showZoom(MouseEvent ev, boolean in) {
 		// Do not allow zoom for the default view
+
 		if (iv.getSecondaryId().equals(ImageComponent.SECONDARY_ID_MAIN)) {
 			return;
 		}
 		// Turn on off any selection in the zoom area
 		setSelectOn(false);
+
+		
+	
 		float scale = in ? 1 / ZOOMFACTOR_LARGE : ZOOMFACTOR_LARGE;
 		Rectangle bounds = imageCanvas.getBounds();
 		int width = (int) (bounds.width * scale + .5f);
@@ -1273,6 +1359,8 @@ public class ImageComponentImage implements IImagesVarKeys {
 	 *            original image coordinates.
 	 */
 	private void showSelectedArea(Rectangle rect, boolean screen) {
+		/*********************************************************************************************************/
+
 		//System.out.println(ImageComponent.);
 		// if (debug || debug1) {
 		// System.out.printf(
@@ -1331,6 +1419,18 @@ public class ImageComponentImage implements IImagesVarKeys {
 			
 			if (zoomSelection == ZoomSelection.AREA) {
 				
+				if (ImageComponent.Zoombox){
+			
+					
+					//System.out.println(origRect.y);
+				/*	resizeX=origRect.x;
+					resizeY=origRect.y;
+					resizeWidth=origRect.width;
+					resizeHeight=origRect.height;
+					rectangleResize=new Rectangle(resizeX, resizeY, resizeWidth, resizeHeight);*/
+					resize=true;
+				}
+				
 					zoomAreaView = (ImageView)viewPart;
 					if (zoomAreaView != null) {
 						// Turn on off any selection in the zoom area
@@ -1368,7 +1468,7 @@ public class ImageComponentImage implements IImagesVarKeys {
 										.getFileName());
 				
 			} else if (zoomSelection == ZoomSelection.ROCKINGCURVE) {
-				
+			
 				
 					zoomRockingCurveView = (RockingCurveView)viewPart;
 					if (zoomRockingCurveView != null) {
@@ -1381,6 +1481,8 @@ public class ImageComponentImage implements IImagesVarKeys {
 								+ iv.getFileName(), SampleController
 								.getController().getCurrentFileIndex(),
 								origRect.x, origRect.y, x2, y2);
+						
+						
 					}
 			}
 			
@@ -1969,8 +2071,10 @@ public class ImageComponentImage implements IImagesVarKeys {
 	 *            Whether to do the selection or not.
 	 */
 	private void drawImage(boolean doSelection) {
+	
 		if (imageCanvasGC == null || image == null) return;
 		imageCanvasGC.drawImage(image, 0, 0);
+		
 		
 		if (iv.isPeaksOn()) {
 			showPeaks();

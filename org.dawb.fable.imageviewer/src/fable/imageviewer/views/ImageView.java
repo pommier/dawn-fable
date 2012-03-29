@@ -9,6 +9,7 @@
  */ 
 package fable.imageviewer.views;
 
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IActionBars;
@@ -102,6 +103,7 @@ public class ImageView extends ViewPart implements IImagesVarKeys, ActionsProvid
 	 * The object which does the work, can be used in different view parts.
 	 */
 	private ImageComponent imageComponent;
+	public static GC imageCanvasZoomGC;
 
 	/*
 	 * (non-Javadoc)
@@ -113,7 +115,7 @@ public class ImageView extends ViewPart implements IImagesVarKeys, ActionsProvid
 	@Override
 	public void createPartControl(Composite parent) {
 		
-		
+	
 		// Trap any view created with a secondary ID of null. These are created
 		// by Eclipse e.g. via Window | Show View.
 		String secondaryId = getSecondaryId();
@@ -150,6 +152,9 @@ public class ImageView extends ViewPart implements IImagesVarKeys, ActionsProvid
 		
         this.imageComponent = new ImageComponent(this);
         imageComponent.createPartControl(parent);
+        System.out.println("RECUP");
+    	System.out.println(ImageComponentImage.imageCanvasCopyGC);
+    	imageCanvasZoomGC=ImageComponentImage.imageCanvasCopyGC;
         GridUtils.removeMargins(parent);
 
 

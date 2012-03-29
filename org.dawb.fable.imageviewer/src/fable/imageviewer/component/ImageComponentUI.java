@@ -147,7 +147,7 @@ public class ImageComponentUI implements IImagesVarKeys {
 	public void createControls(Composite parent) {
 		
 		
-		
+		System.out.println("**************************CREATE CONTROL****************************************");
 		if (iv == null) return;
 		
 		// Create the ImageViewImage here, but do not initialize it until the

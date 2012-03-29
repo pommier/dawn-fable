@@ -131,6 +131,7 @@ public class HeaderPlotView extends ViewPart implements
 
 	@Override
 	public void createPartControl(Composite parent) {
+		
 		view = this;
 		/*************************** PLOT ************************************/
 		createHeaderPlot(parent, "Header keys", "X", "Y");

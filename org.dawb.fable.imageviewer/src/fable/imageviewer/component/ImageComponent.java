@@ -11,6 +11,9 @@ package fable.imageviewer.component;
 
 import java.util.Vector;
 
+import javax.swing.SpringLayout.Constraints;
+
+import org.apache.lucene.util.Constants;
 import org.dawb.common.ui.image.PaletteFactory;
 import org.dawb.fabio.FableJep;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -22,6 +25,7 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.PaletteData;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
@@ -296,9 +300,16 @@ public class ImageComponent implements IPropertyChangeListener,
 	
 	
 	public static String focus ="main" ;
+	
+	public static String shareFocus="main";
+	public static boolean Zoombox=true;
+	public static  GC imageCanvasMainGC;
+	private int callnumber;
+	//=ImageComponentImage.imageCanvasCopyGC;
 
 	public ImageComponent(final IWorkbenchPart3 parentPart) {
         this(parentPart, (ActionsProvider)parentPart);
+        
 	}
 
 	public ImageComponent(final IWorkbenchPart3 parentPart, final ActionsProvider provider) {
@@ -313,7 +324,17 @@ public class ImageComponent implements IPropertyChangeListener,
 	 * .Composite)
 	 */
 	public void createPartControl(Composite parent) {
+		
+		if(callnumber==0){
+			imageCanvasMainGC=ImageComponentImage.imageCanvasCopyGC;
+		}
+		callnumber=callnumber+1;
+		System.out.println("///////////////////CREATEPARTCONTROL/////////////////////////////");
+		
 
+		 System.out.println(imageCanvasMainGC);
+		 
+	  //   System.out.println(ImageComponentImage.imageCanvasCopyGC);
 		// Get the display
 		display = parent.getDisplay();
 		// Get the logger
@@ -321,6 +342,9 @@ public class ImageComponent implements IPropertyChangeListener,
 		controls = new ImageComponentUI(this);
 		controls.setStatusLabel(statusLabel);
 		controls.createControls(parent);
+		  
+		
+		
 
 	}
 
@@ -330,6 +354,13 @@ public class ImageComponent implements IPropertyChangeListener,
 	 * @see org.eclipse.ui.part.WorkbenchPart#setFocus()
 	 */
 	public void setFocus() {
+		//System.out.println(getSecondaryId()); ******************************************
+		
+		if (getSecondaryId()==SECONDARY_ID_MAIN){
+			Zoombox=false;
+		}
+		else	Zoombox=true;
+			
 		focus=ImageComponent.SECONDARY_ID_MAIN;
 		
 		if (controls!=null) controls.setFocus();
@@ -354,6 +385,7 @@ public class ImageComponent implements IPropertyChangeListener,
 	 */
 	@Override
 	public void selectionChanged(IWorkbenchPart part, ISelection selection) {
+		
 		// DEBUG
 		// System.out.println("\n>>>Entering selectionChanged");
 		if (selection instanceof IStructuredSelection) {
