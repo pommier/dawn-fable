@@ -26,6 +26,7 @@ import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.PaletteData;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
@@ -304,7 +305,10 @@ public class ImageComponent implements IPropertyChangeListener,
 	public static String shareFocus="main";
 	public static boolean Zoombox=true;
 	public static  GC imageCanvasMainGC;
+	public static ImageComponentImage SaveImageComponentImage;
 	private int callnumber;
+	public static Image originalImage;
+	
 	//=ImageComponentImage.imageCanvasCopyGC;
 
 	public ImageComponent(final IWorkbenchPart3 parentPart) {
@@ -326,15 +330,12 @@ public class ImageComponent implements IPropertyChangeListener,
 	public void createPartControl(Composite parent) {
 		
 		if(callnumber==0){
-			imageCanvasMainGC=ImageComponentImage.imageCanvasCopyGC;
+			
+		
 		}
 		callnumber=callnumber+1;
-		System.out.println("///////////////////CREATEPARTCONTROL/////////////////////////////");
 		
 
-		 System.out.println(imageCanvasMainGC);
-		 
-	  //   System.out.println(ImageComponentImage.imageCanvasCopyGC);
 		// Get the display
 		display = parent.getDisplay();
 		// Get the logger
@@ -354,10 +355,11 @@ public class ImageComponent implements IPropertyChangeListener,
 	 * @see org.eclipse.ui.part.WorkbenchPart#setFocus()
 	 */
 	public void setFocus() {
-		//System.out.println(getSecondaryId()); ******************************************
 		
+
 		if (getSecondaryId()==SECONDARY_ID_MAIN){
 			Zoombox=false;
+			
 		}
 		else	Zoombox=true;
 			
@@ -549,6 +551,8 @@ public class ImageComponent implements IPropertyChangeListener,
 				newY = 0;
 			}
 			image.setImageRect(new Rectangle(newX, newY, newWidth, newHeight));
+			
+			
 			// DEBUG
 			// if (true) {
 			// System.out.printf(" imageRect (after set): %d %d %d %d\n", image
@@ -808,11 +812,28 @@ public class ImageComponent implements IPropertyChangeListener,
 	 * <li>userMinimum, userMaximum</li>
 	 * <li>peaks and peaksOn</li>
 	 * </ul>
+	 * @param b 
 	 * 
 	 * @param source
 	 *            The source instance.
 	 */
-	public void transferSelectedSettings(ImageComponent src) {
+	public void transferSelectedSettings(ImageComponent src, ImageComponentImage imageComponentImage,Rectangle selectedArea) {
+	
+		System.out.println("Transfer on imagecomponent etape2 :"+imageComponentImage); 
+	
+		if(!Zoombox){
+			System.out.println("enregistrement du main avant:"+imageComponentImage); 
+			SaveImageComponentImage =imageComponentImage;
+			System.out.println("enregistrement du main apres:"+SaveImageComponentImage); 
+			System.out.println("resize ok");
+		}
+		
+		else{
+			System.out.println("utilisation du main :"+SaveImageComponentImage); 
+			SaveImageComponentImage.changeboxsize(selectedArea);
+			
+		}
+	
 		this.setOrientation(src.getOrientation());
 		this.setCoordOrigin(src.getCoordOrigin());
 		if (src.getCoordOrigin() == COORD_CUSTOM) {
@@ -1408,4 +1429,6 @@ public class ImageComponent implements IPropertyChangeListener,
 			loadModel(model);
 		}
 	}
+
+
 }

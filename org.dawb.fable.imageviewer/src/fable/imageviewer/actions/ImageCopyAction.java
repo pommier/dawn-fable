@@ -79,7 +79,7 @@ public class ImageCopyAction extends AbstractImageComponentAction implements IVi
 			imageCopyView.getImage().changeImageRect(imageRect,
 					imageModel.getData(imageRect), imageModel.getFileName(),
 					imageModel);
-			imageCopyView.transferSelectedSettings(imageComp);
+			imageCopyView.transferSelectedSettings(imageComp, null, imageRect);
 			imageCopyView.setPartName("Copy " + imageComp.getFileName());
 			// Increment the ID for the next copy
 			ImageComponent.copySecondaryID++;

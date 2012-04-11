@@ -196,7 +196,7 @@ public class ImageComponentImage implements IImagesVarKeys {
 	/**
 	 * The last selected Rectangle in screen coordinates.
 	 */
-	private Rectangle selectedArea = new Rectangle(0, 0, 0, 0);
+	private   Rectangle selectedArea = new Rectangle(0, 0, 0, 0);
 	/**
 	 * The Display for this view.
 	 */
@@ -250,18 +250,18 @@ public class ImageComponentImage implements IImagesVarKeys {
 	private int tempHeight;
 	private int tempWidthArea;
 	private int tempHeightArea;
-	private boolean resize=false;
-	private int resizeX;
-	private int resizeY;
-	private int resizeWidth;
-	private int resizeHeight;
-	private Rectangle rectangleResize;
-	private int testnb=0;
+	private boolean resizeMainBox=false;
+	private int tempx;
+	private int tempy;
+	private int tempwidth;
+	private int tempheight;
 	
+
 	private Rectangle RectangleSelection;
 	public static GC imageCanvasCopyGC;
-	private int test=5;
+	
 	public int initnb=0;
+	public static Image originalImage;
 
 	/**
 	 * Constructor.
@@ -278,19 +278,58 @@ public class ImageComponentImage implements IImagesVarKeys {
 		// is done
 		iv.setImage(this);
 		controls.setImage(this);
+		
 	}
 
 	/**
 	 * Does initial setup for the canvas. The imageCanvas in ImageViewControls
 	 * must be created first.
+	 * @param selectedAreaSaved 
 	 */
+	
+	
+	public  void changeboxsize(Rectangle selectedAreaSaved){
+		resizeMainBox=true;
+		Rectangle resizebox;
+		resizebox=ImageRectangleToscreenRectangle(selectedAreaSaved,true);	
+		System.out.println("rectangle:"+resizebox);
+		drawImage(false);		
+		Rectangle selectedRectangle = null;
+		
+		
+		selectedArea.x=resizebox.x;
+	 	selectedArea.y=resizebox.y;
+	 	selectedArea.width=resizebox.width;
+	 	selectedArea.height=resizebox.height;
+	 	
+	 	tempx=selectedArea.x;
+	 	tempy=selectedArea.y;
+	 	tempwidth=selectedArea.width;
+	 	tempheight=selectedArea.height;
+	 	
+	 	selectedRectangle = new Rectangle(
+				selectedArea.x, selectedArea.y, selectedArea.width,
+				selectedArea.height);
+	
+		RectangleSelection=selectedRectangle;	
+		
+
+		//box redrew each moves
+
+		drawImage(false);
+		imageChanged = false;
+		newSelection = false;
+		showSelection(false); //redraw the canvas each moves			
+	}
+	
+	
 	public void initializeCanvas() {
 		if (iv == null || controls == null)
 			return;
 
 	
 
-		
+	
 		imageCanvas = controls.getImageCanvas();
 		display = iv.getDisplay();
 		imageCanvas.setBackground(display.getSystemColor(SWT.COLOR_DARK_GRAY));
@@ -305,17 +344,7 @@ public class ImageComponentImage implements IImagesVarKeys {
 
 		//
 		imageCanvasGC = new GC(imageCanvas);
-		initnb=initnb+1;
-		System.out.println("---------------------------INITIALIZE-------------");
-		System.out.println(imageCanvasGC);
-		System.out.println(initnb);
-		imageCanvasCopyGC=imageCanvasGC;
-		System.out.println("**main***");
-		System.out.println(ImageComponent.imageCanvasMainGC);
-		System.out.println("***Zoom***");
-		System.out.println(ImageView.imageCanvasZoomGC);
-		System.out.println("--------------------------------------------------");
-		
+
 		
 		Rectangle bounds = imageCanvas.getBounds();
 		canvasWidth = bounds.width;
@@ -337,6 +366,8 @@ public class ImageComponentImage implements IImagesVarKeys {
 					double imageXScale = xScale;
 					double imageYScale = yScale;
 					createScreenImage(imageData);
+					
+					
 					// xScale and yScale have changed. Scale the selected area
 					// to the new image size so as to keep the same area
 					// selected in the image. Round the new scaled area so as
@@ -362,6 +393,7 @@ public class ImageComponentImage implements IImagesVarKeys {
 					}
 				}
 				displayImage();
+				
 			}
 		});
 		
@@ -375,6 +407,8 @@ public class ImageComponentImage implements IImagesVarKeys {
 			// can't be fixed.
 			@SuppressWarnings("deprecation")
 			public void mouseMove(MouseEvent event) {
+				
+
 				if (image != null) {
 					
 					//System.out.println(ImageComponent.focus);
@@ -392,6 +426,12 @@ public class ImageComponentImage implements IImagesVarKeys {
 						imageCanvasGC.setForeground(display
 								.getSystemColor(SWT.COLOR_WHITE));
 						drawImage(false);
+					
+						
+						
+						if (iv.isPeaksOn()) {
+							//showPeaks();
+						}
 						ZoomSelection zoomSelection = iv.getZoomSelection();
 						if (zoomSelection == ZoomSelection.AREA
 								|| zoomSelection == ZoomSelection.PROFILE
@@ -413,7 +453,7 @@ public class ImageComponentImage implements IImagesVarKeys {
 						
 						} else if ((zoomSelection == ZoomSelection.LINE) && !keydonwonselectionPTS1 && !keydonwonselectionPTS2 && !clickonselection)  {
 							// imageCanvasGC.setLineWidth(iv.getLinePeakWidth());
-							imageCanvasGC.setXORMode(true);
+							imageCanvasGC.setXORMode(true);							
 							imageCanvasGC.drawLine(xSelectionStart,
 									ySelectionStart, event.x, event.y);
 							imageCanvasGC.setXORMode(false);
@@ -614,17 +654,23 @@ public class ImageComponentImage implements IImagesVarKeys {
 
 							
 							//if moves again the box re calculate coordinates
-							if(nbBoxSelected>=2){
+							if(nbBoxSelected>=2 ){
 								secondSelectionX=varX;
 								secondSelectionY=varY;
 							}
 										
+							if(resizeMainBox){
+								
+								secondSelectionX=tempx;
+								secondSelectionY=tempy;
+							
+								
+							}
 							drawImage(false);
 							Rectangle selectedRectangle = null;
 							selectedArea.x=event.x+secondSelectionX-startX;
 						 	selectedArea.y=event.y+secondSelectionY-startY;
-				
-							
+						 	
 							 selectedRectangle = new Rectangle(
 									selectedArea.x, selectedArea.y, selectionWidth,
 									selectionHeight);
@@ -683,11 +729,7 @@ public class ImageComponentImage implements IImagesVarKeys {
 			}
 		});
 
-		
-		
-	
-		
-		
+
 		imageCanvas.addMouseListener(new MouseAdapter() {
 			
 			public void mouseDoubleClick(MouseEvent event) {
@@ -704,20 +746,17 @@ public class ImageComponentImage implements IImagesVarKeys {
 		
 
 			public void mouseDown(MouseEvent ev) {
-				/*******************/
-				testnb=testnb+1;
-				System.out.println(testnb);
-				if (!ImageComponent.Zoombox){
+		
+			/*	if (!ImageComponent.Zoombox){
 					
-
+					System.out.println("Transfer on imagecomponentimage ZOOM OFF:"+this); 
 		
 				}
 				if (ImageComponent.Zoombox){
 					
-	
+					System.out.println("Transfer on imagecomponentimage ZOOM:"+this); 
 				}
-				
-				/*******************/
+			*/
 			
 				if (image == null)
 					return;
@@ -770,33 +809,7 @@ public class ImageComponentImage implements IImagesVarKeys {
 				
 			
 			}
-			public void mouseUp(MouseEvent ev) {
-				
-				if(resize){
-								
-					drawImage(false);
-					
-					selectedArea.x=10;
-				 	selectedArea.y=10;
-				 	selectedArea.width=10;
-		
-					
-				 	//imageCanvasGC=imageCanvasGCMain;
-
-					ImageComponent.imageCanvasMainGC.setForeground(display
-							.getSystemColor(SWT.COLOR_WHITE));
-					drawImage(false);
-					imageChanged = true;
-					newSelection = true;
-					if (debug1) {
-						System.out.println("\nmouseUp calling showSelection "
-								+ "imageChanged=" + imageChanged);
-						System.out.printf("  \"%s\"\n", iv.getPartName());
-					}
-					showSelection(false);
-					resize=false;
-				}
-				
+			public void mouseUp(MouseEvent ev) {								
 				//calculate the original coordinate of the first and the second point
 				if (!keydonwonselectionPTS1 && !keydonwonselectionPTS2 ){
 			
@@ -807,25 +820,41 @@ public class ImageComponentImage implements IImagesVarKeys {
 				}
 		
 				
-				if(nbBoxSelected>=2){ // recalculate the point after re selecting the boxes
+				if(nbBoxSelected>=2 && !resizeMainBox){ // recalculate the point after re selecting the boxes
 					secondSelectionX=varX;
 					secondSelectionY=varY;
+					
 				}				
-				
+						
 				clickonselection=false; 
 				 if (keydownOnSelection) {			//for ZOOM.AREA		
 					 
-
-					 movedX=ev.x-startX;
-					 movedY=ev.y-startY;
-					 
+					 	//used for line
+					 	movedX=ev.x-startX;
+					 	movedY=ev.y-startY;
+					 	//*************
+					 	
 					 	selectedArea.x=ev.x+secondSelectionX-startX;
 					 	varX=selectedArea.x;
 					 	selectedArea.y=ev.y+secondSelectionY-startY;
 					 	varY=selectedArea.y;			
 
+					 	if(!resizeMainBox){
 						selectedArea.width = selectionWidth;						
-						selectedArea.height = selectionHeight;		
+						selectedArea.height = selectionHeight;	
+					 	}
+					 	
+				 	else{		
+				 		
+				 		
+				 
+					 		selectedArea.width = tempwidth;						
+							selectedArea.height = tempheight;	
+							selectionWidth=tempwidth;
+							selectionHeight=tempheight;
+					
+							resizeMainBox=false;
+					 	}
 						
 						coordinateFirstPtsX=coordinateFirstPtsX+movedX; 		//recalculate point after moving			
 						coordinateFirstPtsY=coordinateFirstPtsY+movedY;				
@@ -1100,24 +1129,14 @@ public class ImageComponentImage implements IImagesVarKeys {
 				|| zoomSelection == ZoomSelection.RELIEF
 				|| zoomSelection == ZoomSelection.ROCKINGCURVE) {
 			if (!force) {
-				if (!resize){
+	
 				imageCanvasGC.setXORMode(true);
 				imageCanvasGC.drawRectangle(selectedArea);
 				imageCanvasGC.setXORMode(false);
-				}
-				else{
-					System.out.println("redraw");
 
-					ImageComponent.imageCanvasMainGC.setForeground(display
-							.getSystemColor(SWT.COLOR_WHITE));
-			
-					ImageComponent.imageCanvasMainGC.setXORMode(true);
-					ImageComponent.imageCanvasMainGC.drawRectangle(selectedArea);
-					ImageComponent.imageCanvasMainGC.setXORMode(false);
-				}
 			}
 			if (imageChanged || force) showSelectedArea(selectedArea, true);
-			selectOn = true;
+		selectOn = true;
 		} else if (zoomSelection == ZoomSelection.LINE) {
 			// setXORMode is not supported on some platforms
 			if (!force) {
@@ -1359,7 +1378,7 @@ public class ImageComponentImage implements IImagesVarKeys {
 	 *            original image coordinates.
 	 */
 	private void showSelectedArea(Rectangle rect, boolean screen) {
-		/*********************************************************************************************************/
+	
 
 		//System.out.println(ImageComponent.);
 		// if (debug || debug1) {
@@ -1420,18 +1439,11 @@ public class ImageComponentImage implements IImagesVarKeys {
 			if (zoomSelection == ZoomSelection.AREA) {
 				
 				if (ImageComponent.Zoombox){
-			
-					
-					//System.out.println(origRect.y);
-				/*	resizeX=origRect.x;
-					resizeY=origRect.y;
-					resizeWidth=origRect.width;
-					resizeHeight=origRect.height;
-					rectangleResize=new Rectangle(resizeX, resizeY, resizeWidth, resizeHeight);*/
-					resize=true;
+
 				}
 				
 					zoomAreaView = (ImageView)viewPart;
+				
 					if (zoomAreaView != null) {
 						// Turn on off any selection in the zoom area
 						zoomAreaView.getImage().setSelectOn(false);
@@ -1455,7 +1467,8 @@ public class ImageComponentImage implements IImagesVarKeys {
 									.getSecondaryId()
 									+ " Diff " + iv.getFileName());
 						}
-						zoomAreaView.transferSelectedSettings(iv);
+				
+						zoomAreaView.transferSelectedSettings(iv,this,origRect);
 					}
 				
 			} else if (zoomSelection == ZoomSelection.RELIEF) {
@@ -2077,7 +2090,7 @@ public class ImageComponentImage implements IImagesVarKeys {
 		
 		
 		if (iv.isPeaksOn()) {
-			showPeaks();
+			//showPeaks();
 		}
 		if (doSelection && selectOn) {
 			if (debug1) {
@@ -2516,6 +2529,79 @@ public class ImageComponentImage implements IImagesVarKeys {
 	 *            y + height > y.
 	 * @return
 	 */
+	
+	
+	/**********************************************************************************************************************************************************/
+	
+	public Rectangle ImageRectangleToscreenRectangle(Rectangle screenRect,
+			boolean ordered) {
+		int x1, x2, y1, y2, temp;
+		// Convert to non-scaled, oriented coordinates
+		// KE: Don't use roundoff here, it doesn't work right.
+		// KE: imageData.x and imageData.y are always 0
+		int x0 = screenRect.x - imageData.x;
+		int y0 = screenRect.y - imageData.y;
+		System.out.println("xScale :"+xScale+" : yScale :"+ yScale);
+		x1 = (int) (x0 / xScale);
+		y1 = (int) (y0 / yScale);
+		// Calculate x2, y2
+		if (screenRect.width != 0) {
+			x2 = (int) ((x0 + screenRect.width - 1) / xScale);
+		} else {
+			x2 = x1;
+		}
+		if (screenRect.height != 0) {
+			y2 = (int) ((y0 + screenRect.height - 1) / yScale);
+		} else {
+			y2 = y1;
+		}
+		// Convert to the original image coordinates
+		Point p1 = orientedToImage(new Point(x1, y1));
+		Point p2 = orientedToImage(new Point(x2, y2));
+		x1 = p1.x;
+		y1 = p1.y;
+		x2 = p2.x;
+		y2 = p2.y;
+		// Insure it is ordered correctly
+		if (ordered) {
+			if (x1 > x2) {
+				temp = x1;
+				x1 = x2;
+				x2 = temp;
+			}
+			if (y1 > y2) {
+				temp = y1;
+				y1 = y2;
+				y2 = temp;
+			}
+		}
+		// Insure it is in bounds
+		if (x1 < 0)
+			x1 = 0;
+		if (x1 >= origRect.width)
+			x1 = origRect.width - 1;
+		if (x2 < 0)
+			x2 = 0;
+		if (x2 >= origRect.width)
+			x2 = origRect.width - 1;
+		if (y1 < 0)
+			y1 = 0;
+		if (y1 >= origRect.height)
+			y1 = origRect.height - 1;
+		if (y2 < 0)
+			y2 = 0;
+		if (y2 >= origRect.height)
+			y2 = origRect.height - 1;
+
+		int width = x2 - x1 + 1;
+		int height = y2 - y1 + 1;
+		Rectangle newRect = new Rectangle(x1, y1, width, height);
+		System.out.println("coordonnees rectange de base : "+screenRect);
+		System.out.println("coordonnees rectange apres transformation: "+newRect);
+		return newRect;
+	}
+	/**********************************************************************************************************************************************************/
+	
 	public Rectangle screenRectangleToImageRectangle(Rectangle screenRect,
 			boolean ordered) {
 		int x1, x2, y1, y2, temp;
@@ -2524,6 +2610,7 @@ public class ImageComponentImage implements IImagesVarKeys {
 		// KE: imageData.x and imageData.y are always 0
 		int x0 = screenRect.x - imageData.x;
 		int y0 = screenRect.y - imageData.y;
+		System.out.println("xScale :"+xScale+" : yScale :"+ yScale);
 		x1 = (int) (x0 * xScale);
 		y1 = (int) (y0 * yScale);
 		// Calculate x2, y2
@@ -2578,6 +2665,8 @@ public class ImageComponentImage implements IImagesVarKeys {
 		int width = x2 - x1 + 1;
 		int height = y2 - y1 + 1;
 		Rectangle newRect = new Rectangle(x1, y1, width, height);
+		System.out.println("MAIN coordonnees rectange de base : "+screenRect);
+		System.out.println("MAIN coordonnees rectange apres transformation: "+newRect);
 		return newRect;
 	}
 

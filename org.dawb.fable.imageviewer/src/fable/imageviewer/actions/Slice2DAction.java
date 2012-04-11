@@ -97,7 +97,7 @@ public class Slice2DAction extends AbstractImageComponentAction implements IView
 						imageComp.updateStatusLabel("zoom on a 2D area to make a slice");
 
 					}
-					imageSlice2DView.transferSelectedSettings(imageComp);
+					imageSlice2DView.transferSelectedSettings(imageComp, null, imageArea);
 					imageSlice2DView.setPartName(imageSlice2DView
 							.getSecondaryId()
 							+ " " + imageComp.getFileName());

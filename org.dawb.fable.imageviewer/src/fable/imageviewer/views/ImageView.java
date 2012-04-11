@@ -10,6 +10,7 @@
 package fable.imageviewer.views;
 
 import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IActionBars;
@@ -152,8 +153,7 @@ public class ImageView extends ViewPart implements IImagesVarKeys, ActionsProvid
 		
         this.imageComponent = new ImageComponent(this);
         imageComponent.createPartControl(parent);
-        System.out.println("RECUP");
-    	System.out.println(ImageComponentImage.imageCanvasCopyGC);
+       
     	imageCanvasZoomGC=ImageComponentImage.imageCanvasCopyGC;
         GridUtils.removeMargins(parent);
 
@@ -205,8 +205,8 @@ public class ImageView extends ViewPart implements IImagesVarKeys, ActionsProvid
 		super.setPartName(name);
 	}
 
-	public void transferSelectedSettings(ImageComponent iv) {
-		imageComponent.transferSelectedSettings(iv);
+	public void transferSelectedSettings(ImageComponent iv, ImageComponentImage imageComponentImage, Rectangle selectedArea) {
+		imageComponent.transferSelectedSettings(iv,imageComponentImage,selectedArea);
 	}
 
 	public ImageComponent getImageComponent() {

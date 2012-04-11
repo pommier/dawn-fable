@@ -90,7 +90,7 @@ public class Slice1DAction extends SetDifferenceAction implements IViewActionDel
 				} else {
 					imageComp.updateStatusLabel("zoom on a 1D line to make a slice");
 				}
-				imageSlice1DView.transferSelectedSettings(imageComp);
+				imageSlice1DView.transferSelectedSettings(imageComp, null, imageArea);
 				imageSlice1DView.setPartName(imageSlice1DView.getSecondaryId()
 						+ " " + imageComp.getFileName());
 			}
