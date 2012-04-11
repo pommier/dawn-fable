@@ -34,7 +34,6 @@ import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.MouseMoveListener;
-import org.eclipse.swt.events.MouseWheelListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
@@ -292,7 +291,6 @@ public class ImageComponentImage implements IImagesVarKeys {
 		resizeMainBox=true;
 		Rectangle resizebox;
 		resizebox=ImageRectangleToscreenRectangle(selectedAreaSaved,true);	
-		System.out.println("rectangle:"+resizebox);
 		drawImage(false);		
 		Rectangle selectedRectangle = null;
 		
@@ -326,8 +324,6 @@ public class ImageComponentImage implements IImagesVarKeys {
 	public void initializeCanvas() {
 		if (iv == null || controls == null)
 			return;
-
-	
 
 	
 		imageCanvas = controls.getImageCanvas();
@@ -397,9 +393,7 @@ public class ImageComponentImage implements IImagesVarKeys {
 			}
 		});
 		
-		
-		
-	
+
 
 		imageCanvas.addMouseMoveListener(new MouseMoveListener() {
 			// KE: setXORMode doesn't work on some Macs. There is no easy
@@ -466,10 +460,10 @@ public class ImageComponentImage implements IImagesVarKeys {
 						
 					}
 
+					if (RectangleSelection!=null){
 					
 					
-					
-					if ((iv.getZoomSelection() == ZoomSelection.AREA) && inselectbox(event,RectangleSelection)  ){
+					if ((iv.getZoomSelection() == ZoomSelection.AREA) && inselectbox(event,RectangleSelection) && (iv.getSecondaryId()=="Main")){//working if on main windows
 						cursor = display.getSystemCursor(SWT.CURSOR_HAND);
 						imageCanvas.setCursor(cursor);
 						intoselection=true;												
@@ -521,6 +515,7 @@ public class ImageComponentImage implements IImagesVarKeys {
 						 intoselection=false;
 						 movePointAvailable1=false;
 						 movePointAvailable2=false;
+					}
 					}
 			
 					
@@ -747,16 +742,7 @@ public class ImageComponentImage implements IImagesVarKeys {
 
 			public void mouseDown(MouseEvent ev) {
 		
-			/*	if (!ImageComponent.Zoombox){
-					
-					System.out.println("Transfer on imagecomponentimage ZOOM OFF:"+this); 
-		
-				}
-				if (ImageComponent.Zoombox){
-					
-					System.out.println("Transfer on imagecomponentimage ZOOM:"+this); 
-				}
-			*/
+
 			
 				if (image == null)
 					return;
@@ -2266,8 +2252,7 @@ public class ImageComponentImage implements IImagesVarKeys {
 			legendCanvasGC.drawText(minformated, 0, bounds.height-legend_height-20);
 		
 		}
-		
-		/*******************************/
+
 		
 		if (middleLenghtInt<2  && middleLenghtInt !=0 && middle !=0.0 ){
 			font = new Font(display,"Arial",14,SWT.BOLD | SWT.ITALIC); 
@@ -2290,8 +2275,7 @@ public class ImageComponentImage implements IImagesVarKeys {
 		}
 		
 		
-		
-		/*******************************/
+
 		
 		
 		
@@ -2541,7 +2525,7 @@ public class ImageComponentImage implements IImagesVarKeys {
 		// KE: imageData.x and imageData.y are always 0
 		int x0 = screenRect.x - imageData.x;
 		int y0 = screenRect.y - imageData.y;
-		System.out.println("xScale :"+xScale+" : yScale :"+ yScale);
+	
 		x1 = (int) (x0 / xScale);
 		y1 = (int) (y0 / yScale);
 		// Calculate x2, y2
@@ -2596,8 +2580,6 @@ public class ImageComponentImage implements IImagesVarKeys {
 		int width = x2 - x1 + 1;
 		int height = y2 - y1 + 1;
 		Rectangle newRect = new Rectangle(x1, y1, width, height);
-		System.out.println("coordonnees rectange de base : "+screenRect);
-		System.out.println("coordonnees rectange apres transformation: "+newRect);
 		return newRect;
 	}
 	/**********************************************************************************************************************************************************/
@@ -2610,7 +2592,6 @@ public class ImageComponentImage implements IImagesVarKeys {
 		// KE: imageData.x and imageData.y are always 0
 		int x0 = screenRect.x - imageData.x;
 		int y0 = screenRect.y - imageData.y;
-		System.out.println("xScale :"+xScale+" : yScale :"+ yScale);
 		x1 = (int) (x0 * xScale);
 		y1 = (int) (y0 * yScale);
 		// Calculate x2, y2
@@ -2665,8 +2646,6 @@ public class ImageComponentImage implements IImagesVarKeys {
 		int width = x2 - x1 + 1;
 		int height = y2 - y1 + 1;
 		Rectangle newRect = new Rectangle(x1, y1, width, height);
-		System.out.println("MAIN coordonnees rectange de base : "+screenRect);
-		System.out.println("MAIN coordonnees rectange apres transformation: "+newRect);
 		return newRect;
 	}
 

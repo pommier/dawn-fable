@@ -819,17 +819,13 @@ public class ImageComponent implements IPropertyChangeListener,
 	 */
 	public void transferSelectedSettings(ImageComponent src, ImageComponentImage imageComponentImage,Rectangle selectedArea) {
 	
-		System.out.println("Transfer on imagecomponent etape2 :"+imageComponentImage); 
 	
 		if(!Zoombox){
-			System.out.println("enregistrement du main avant:"+imageComponentImage); 
 			SaveImageComponentImage =imageComponentImage;
-			System.out.println("enregistrement du main apres:"+SaveImageComponentImage); 
-			System.out.println("resize ok");
 		}
 		
 		else{
-			System.out.println("utilisation du main :"+SaveImageComponentImage); 
+ 
 			SaveImageComponentImage.changeboxsize(selectedArea);
 			
 		}
