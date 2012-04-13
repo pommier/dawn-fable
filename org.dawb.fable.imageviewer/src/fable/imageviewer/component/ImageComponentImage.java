@@ -263,7 +263,10 @@ public class ImageComponentImage implements IImagesVarKeys {
 	private boolean cornerSEselected;
 	private boolean cornerSWselected;
 	private boolean cornerResized;
-	
+	private boolean coordinateInverted;
+	private int testx;
+	private int testy;
+	private boolean testbool=false;
 
 	private Rectangle RectangleSelection;
 	public static GC imageCanvasCopyGC;
@@ -295,13 +298,14 @@ public class ImageComponentImage implements IImagesVarKeys {
 	
 	
 	public  void changeboxsize(Rectangle selectedAreaSaved){
+		testbool=true;		
 		resizeMainBox=true;
 		Rectangle resizebox;
 		resizebox=ImageRectangleToscreenRectangle(selectedAreaSaved,true);	
 		drawImage(false);		
 		Rectangle selectedRectangle = null;
 		
-		
+			
 		selectedArea.x=resizebox.x;
 	 	selectedArea.y=resizebox.y;
 	 	selectedArea.width=resizebox.width;
@@ -478,6 +482,9 @@ public class ImageComponentImage implements IImagesVarKeys {
 						
 						
 					}
+					
+					
+					
 
 					if (RectangleSelection!=null){
 									
@@ -681,10 +688,17 @@ public class ImageComponentImage implements IImagesVarKeys {
 								secondSelectionX=varX;
 								secondSelectionY=varY;
 							}									
-							if(resizeMainBox){								
+							if(resizeMainBox ){		
+								
 								secondSelectionX=tempx;
-								secondSelectionY=tempy;						
+								secondSelectionY=tempy;		
+								if (coordinateInverted) {
+									secondSelectionX=testx;
+									secondSelectionY=testy;																		
+								}
 							}
+							
+							
 							drawImage(false);
 							Rectangle selectedRectangle = null;
 							selectedArea.x=event.x+secondSelectionX-startX;
@@ -702,6 +716,7 @@ public class ImageComponentImage implements IImagesVarKeys {
 							drawImage(false);
 							imageChanged = true;
 							newSelection = true;
+							
 							if (debug1) {
 								System.out.println("\nmouseUp calling showSelection "
 										+ "imageChanged=" + imageChanged);
@@ -775,6 +790,8 @@ public class ImageComponentImage implements IImagesVarKeys {
 							tempy=secondSelectionY;
 							tempwidth=secondSelectionX+selectionWidth-event.x;
 							tempheight=selectedArea.height;		
+							
+							
 							imageCanvasGC.setForeground(display
 									.getSystemColor(SWT.COLOR_WHITE));
 							drawImage(false);
@@ -967,6 +984,10 @@ public class ImageComponentImage implements IImagesVarKeys {
 				
 				 if ((keydownOnSelection)  ) {			//for ZOOM.AREA		
 					 
+					 
+				
+					 
+					 
 				
 					 	movedX=ev.x-startX;
 					 	movedY=ev.y-startY;					 	
@@ -987,11 +1008,25 @@ public class ImageComponentImage implements IImagesVarKeys {
 							resizeMainBox=false;
 					 	}
 					 	
+					 	
+					 	
 					 	secondSelectionX=secondSelectionX+movedX;
 					 	secondSelectionY=secondSelectionY+movedY;
 					 	
-
-					 	
+					 	if (coordinateInverted && testbool) {
+				
+					 		if(selectedArea.width<0){	
+					 			selectedArea.width = -selectedArea.width;	
+					 			selectionWidth=-selectionWidth;
+					 		}
+					 		
+					 		if (selectedArea.height<0){					
+					 			selectedArea.height = -selectedArea.height;	
+					 			selectionHeight=-selectionHeight;	
+					 		}
+							testbool=false;																
+							}
+					
 					 	
 						coordinateFirstPtsX=coordinateFirstPtsX+movedX; 		//recalculate point after moving			
 						coordinateFirstPtsY=coordinateFirstPtsY+movedY;				
@@ -1015,11 +1050,11 @@ public class ImageComponentImage implements IImagesVarKeys {
 							System.out.printf("  \"%s\"\n", iv.getPartName());
 						}
 						showSelection(false);
-					
+						coordinateInverted=false;
 				 }
 					
 				 else if ((xSelectionStart != ev.x || ySelectionStart != ev.y) && !keydownOnSelection && !movingpts1 && !movingpts2 && !cornerResized){ // on selecting AREA or LINE	
-					 
+					
 					
 						selectedArea.x = xSelectionStart; 
 						secondSelectionX=xSelectionStart;
@@ -1119,7 +1154,7 @@ public class ImageComponentImage implements IImagesVarKeys {
 				 
 					
 				  if(cornerResized){
-					
+					  			  					
 				 		selectedArea.x=tempx;
 				 		selectedArea.y=tempy;
 						selectedArea.width=tempwidth;
@@ -1130,11 +1165,33 @@ public class ImageComponentImage implements IImagesVarKeys {
 						secondSelectionX=tempx;
 						secondSelectionY=tempy;		
 						
+						if(tempwidth<0){
+							
+						selectedArea.x=tempx+tempwidth;
+						secondSelectionX=tempx+tempwidth;
+						selectedArea.width=-tempwidth;
+						selectionWidth=-tempwidth;
+						coordinateInverted=true;
+						}
+						
+						if(tempheight<0){
+							
+						selectedArea.y=tempy+tempheight;
+						secondSelectionY=tempy+tempheight;
+						selectedArea.height=-tempheight;
+						selectionHeight=-tempheight;
+						coordinateInverted=true;						
+						}
+						
+						testx=selectedArea.x;
+						testy=selectedArea.y;
+						
 						
 						RectangleSelection = new Rectangle(
 									selectedArea.x, selectedArea.y, selectedArea.width,
 									selectedArea.height);
-				
+						
+					
 
 						imageCanvasGC.setForeground(display
 								.getSystemColor(SWT.COLOR_WHITE));
@@ -3028,6 +3085,23 @@ public class ImageComponentImage implements IImagesVarKeys {
 		if(RectangleSelection.x+RectangleSelection.width<event.x && RectangleSelection.x+RectangleSelection.width+10>event.x && RectangleSelection.height+RectangleSelection.y<event.y && RectangleSelection.height+RectangleSelection.y+10>event.y )			
 		return true;
 		else return false;	
+	}
+	
+	
+	private Rectangle redrawRectangleSelection(Rectangle RectangleSelection){
+		
+		if(RectangleSelection.width<0){
+			System.out.println("negatif detected");
+			RectangleSelection.width=-RectangleSelection.width;
+			RectangleSelection.x=RectangleSelection.x-RectangleSelection.width;
+		
+			
+			return RectangleSelection;		
+		}
+		System.out.println("nothing");
+		
+		
+		 return RectangleSelection;	
 	}
 	
 
