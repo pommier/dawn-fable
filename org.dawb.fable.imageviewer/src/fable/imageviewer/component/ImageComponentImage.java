@@ -254,6 +254,15 @@ public class ImageComponentImage implements IImagesVarKeys {
 	private int tempy;
 	private int tempwidth;
 	private int tempheight;
+	private boolean cornerNE;
+	private boolean cornerNW;
+	private boolean cornerSE;
+	private boolean cornerSW;
+	private boolean cornerNEselected;
+	private boolean cornerNWselected;
+	private boolean cornerSEselected;
+	private boolean cornerSWselected;
+	private boolean cornerResized;
 	
 
 	private Rectangle RectangleSelection;
@@ -281,9 +290,7 @@ public class ImageComponentImage implements IImagesVarKeys {
 	}
 
 	/**
-	 * Does initial setup for the canvas. The imageCanvas in ImageViewControls
-	 * must be created first.
-	 * @param selectedAreaSaved 
+	 * Does refresh the box selection of the main window
 	 */
 	
 	
@@ -300,10 +307,15 @@ public class ImageComponentImage implements IImagesVarKeys {
 	 	selectedArea.width=resizebox.width;
 	 	selectedArea.height=resizebox.height;
 	 	
+	 	secondSelectionX=resizebox.x;
+	 	secondSelectionY=resizebox.y;
+	 	
 	 	tempx=selectedArea.x;
 	 	tempy=selectedArea.y;
 	 	tempwidth=selectedArea.width;
 	 	tempheight=selectedArea.height;
+	 	selectionWidth=selectedArea.width;
+	 	selectionHeight=selectedArea.height;
 	 	
 	 	selectedRectangle = new Rectangle(
 				selectedArea.x, selectedArea.y, selectedArea.width,
@@ -319,6 +331,12 @@ public class ImageComponentImage implements IImagesVarKeys {
 		newSelection = false;
 		showSelection(false); //redraw the canvas each moves			
 	}
+	
+	/**
+	 * Does initial setup for the canvas. The imageCanvas in ImageViewControls
+	 * must be created first.
+	 * @param selectedAreaSaved 
+	 */
 	
 	
 	public void initializeCanvas() {
@@ -411,8 +429,9 @@ public class ImageComponentImage implements IImagesVarKeys {
 					// imageCanvas.setCursor(cursor);
 					
 					// System.out.println(ImageComponent.shareFocus);
-					
-					if (selectingOn && !keydownOnSelection  ) {
+				
+					if (selectingOn && !keydownOnSelection && !cornerSWselected && !cornerSEselected && !cornerNWselected && !cornerNEselected) {
+						
 						cursor = display.getSystemCursor(SWT.CURSOR_HAND);
 						imageCanvas.setCursor(cursor);
 						int width = event.x - xSelectionStart;
@@ -461,51 +480,65 @@ public class ImageComponentImage implements IImagesVarKeys {
 					}
 
 					if (RectangleSelection!=null){
-					
-					
-					if ((iv.getZoomSelection() == ZoomSelection.AREA) && inselectbox(event,RectangleSelection) && (iv.getSecondaryId()=="Main")){//working if on main windows
+									
+					if ((iv.getZoomSelection() == ZoomSelection.AREA) && inselectbox(event,RectangleSelection) && (iv.getSecondaryId()=="Main")){//worked if on main windows
 						cursor = display.getSystemCursor(SWT.CURSOR_HAND);
 						imageCanvas.setCursor(cursor);
 						intoselection=true;												
-					}
-					
+					}					
 					else if ((iv.getZoomSelection() == ZoomSelection.RELIEF) && inselectbox(event,RectangleSelection) ){
 						cursor = display.getSystemCursor(SWT.CURSOR_HAND);
 						imageCanvas.setCursor(cursor);
 						intoselection=true;												
-					}
-					
+					}					
 					else if ((iv.getZoomSelection() == ZoomSelection.PROFILE) && inselectbox(event,RectangleSelection) ){
 						cursor = display.getSystemCursor(SWT.CURSOR_HAND);
 						imageCanvas.setCursor(cursor);
 						intoselection=true;												
-					}
-					
+					}					
 					else if  (((iv.getZoomSelection() == ZoomSelection.LINE)) && inselectbox(event,RectangleSelectionLine) && !inselectbox(event,RectangleLinePts1) 
 							 && !inselectbox(event,RectangleLinePts2) && !keydonwonselectionPTS1 && !keydonwonselectionPTS2){
 						cursor = display.getSystemCursor(SWT.CURSOR_HAND);
 						imageCanvas.setCursor(cursor);
 						intoselection=true;												
-					}
-					
-				
+					}			
 					else if ((iv.getZoomSelection() == ZoomSelection.LINE) && inselectbox(event,RectangleLinePts1) ){ //detect first point
 						cursor = display.getSystemCursor(SWT.CURSOR_SIZEALL);
 						imageCanvas.setCursor(cursor);			
 						movePointAvailable1=true;
 						movePointAvailable2=false;
-						intoselection=false;
-						
-						
-					}
-					
+						intoselection=false;						
+					}					
 					else if ((iv.getZoomSelection() == ZoomSelection.LINE) && inselectbox(event,RectangleLinePts2) ){ //detect second point
 						cursor = display.getSystemCursor(SWT.CURSOR_SIZEALL);
 						imageCanvas.setCursor(cursor);		
 						movePointAvailable1=false;
 						movePointAvailable2=true;
 						intoselection=false;
+					}				
+					/******************RESIZE BOX SELECTION********************/					
+					else if ((iv.getZoomSelection() == ZoomSelection.AREA) && cornerTopLeftSelected(event,RectangleSelection) && (iv.getSecondaryId()=="Main")){//Detect corner 
+						cursor = display.getSystemCursor(SWT.CURSOR_SIZENW);
+						imageCanvas.setCursor(cursor);						
+						cornerNE=true;																		
+					}					
+					else if ((iv.getZoomSelection() == ZoomSelection.AREA) && cornerTopRightSelected(event,RectangleSelection) && (iv.getSecondaryId()=="Main")){//Detect corner 
+						cursor = display.getSystemCursor(SWT.CURSOR_SIZENE);
+						imageCanvas.setCursor(cursor);
+						cornerNW=true;																							
+					}										
+					else if ((iv.getZoomSelection() == ZoomSelection.AREA) && cornerBottomLeftSelected(event,RectangleSelection) && (iv.getSecondaryId()=="Main")){//Detect corner 
+						cursor = display.getSystemCursor(SWT.CURSOR_SIZESW);
+						imageCanvas.setCursor(cursor);					
+						cornerSE=true;																	
+					}										
+					else if ((iv.getZoomSelection() == ZoomSelection.AREA) && cornerBottomRightSelected(event,RectangleSelection) && (iv.getSecondaryId()=="Main")){//Detect corner 
+						cursor = display.getSystemCursor(SWT.CURSOR_SIZESE);
+						imageCanvas.setCursor(cursor);												
+						cornerSW=true;	
+					
 					}
+				/**********************************************************/	
 
 					
 					else {
@@ -515,6 +548,10 @@ public class ImageComponentImage implements IImagesVarKeys {
 						 intoselection=false;
 						 movePointAvailable1=false;
 						 movePointAvailable2=false;
+						 cornerNE=false;	
+						 cornerNW=false;	
+						 cornerSE=false;	
+						 cornerSW=false;	
 					}
 					}
 			
@@ -592,19 +629,15 @@ public class ImageComponentImage implements IImagesVarKeys {
 						selectionWidth=tempWidth; //Re-place old coordinate for the next
 						selectionHeight=tempHeight;
 						selectedArea.width=tempWidthArea;
-						selectedArea.height=tempHeightArea;
-		
-					}
-				
-					
+						selectedArea.height=tempHeightArea;		
+					}								
 					 if(clickonselection && (iv.getZoomSelection() == ZoomSelection.RELIEF)){
 				
 						//if moves again the box re calculate coordinates
 						if(nbBoxSelected>=2){
 							secondSelectionX=varX;
 							secondSelectionY=varY;
-						}
-									
+						}									
 						drawImage(false);
 						Rectangle selectedRectangle = null;
 						selectedArea.x=event.x+secondSelectionX-startX;
@@ -634,32 +667,23 @@ public class ImageComponentImage implements IImagesVarKeys {
 						if (prefs.getString(fable.imageviewer.preferences.PreferenceConstants.P_RELIEFMOVE) == "true"){
 						showSelection(false); //redraw the canvas each moves			
 						}
-						else{
-							
+						else{							
 							imageCanvasGC.setXORMode(true);
 							imageCanvasGC.drawRectangle(selectedArea);
 							imageCanvasGC.setXORMode(false);
-						}
-						
+						}						
 					}
 					 
-
-						//if click on box
-					 else if (clickonselection){
-
-							
+						//if click on Area box
+					 else if (clickonselection){						
 							//if moves again the box re calculate coordinates
 							if(nbBoxSelected>=2 ){
 								secondSelectionX=varX;
 								secondSelectionY=varY;
-							}
-										
-							if(resizeMainBox){
-								
+							}									
+							if(resizeMainBox){								
 								secondSelectionX=tempx;
-								secondSelectionY=tempy;
-							
-								
+								secondSelectionY=tempy;						
 							}
 							drawImage(false);
 							Rectangle selectedRectangle = null;
@@ -667,8 +691,8 @@ public class ImageComponentImage implements IImagesVarKeys {
 						 	selectedArea.y=event.y+secondSelectionY-startY;
 						 	
 							 selectedRectangle = new Rectangle(
-									selectedArea.x, selectedArea.y, selectionWidth,
-									selectionHeight);
+									selectedArea.x, selectedArea.y, selectedArea.width,
+									selectedArea.height);
 						
 							RectangleSelection=selectedRectangle;									
 
@@ -684,7 +708,113 @@ public class ImageComponentImage implements IImagesVarKeys {
 								System.out.printf("  \"%s\"\n", iv.getPartName());
 							}
 							showSelection(false); //redraw the canvas each moves			
-						}		
+						}	
+					 
+					 else if(cornerNEselected){
+						 
+						 	selectedArea.y=secondSelectionY+selectionHeight;		
+						 	selectedArea.x=secondSelectionX+selectionWidth;
+					 		selectedArea.width =-(secondSelectionX+selectionWidth-event.x);						
+							selectedArea.height = -(secondSelectionY+selectionHeight-event.y);
+							
+							tempx=event.x;
+							tempy=event.y;
+							tempwidth=secondSelectionX+selectionWidth-event.x;
+							tempheight=secondSelectionY+selectionHeight-event.y;		
+							
+							imageCanvasGC.setForeground(display
+									.getSystemColor(SWT.COLOR_WHITE));
+							drawImage(false);
+							imageChanged = true;
+							newSelection = false;
+							if (debug1) {
+								System.out.println("\nmouseUp calling showSelection "
+										+ "imageChanged=" + imageChanged);
+								System.out.printf("  \"%s\"\n", iv.getPartName());
+							}
+							showSelection(false);
+					 
+						 
+					 }
+					 
+					 else if(cornerNWselected){
+
+						 
+						 	selectedArea.y=secondSelectionY+selectionHeight;			 		
+					 		selectedArea.width =-(secondSelectionX-event.x);						
+							selectedArea.height = -(secondSelectionY+selectionHeight-event.y);
+							
+							tempx=secondSelectionX;
+							tempy=event.y;
+							tempwidth=selectedArea.width;
+							tempheight=secondSelectionY+selectionHeight-event.y;		
+							
+							imageCanvasGC.setForeground(display
+									.getSystemColor(SWT.COLOR_WHITE));
+							drawImage(false);
+							imageChanged = true;
+							newSelection = false;
+							if (debug1) {
+								System.out.println("\nmouseUp calling showSelection "
+										+ "imageChanged=" + imageChanged);
+								System.out.printf("  \"%s\"\n", iv.getPartName());
+							}
+							showSelection(false);
+					 
+						 
+					 }
+					 
+					 else if(cornerSEselected){
+						 
+					
+					 		selectedArea.x=secondSelectionX+selectionWidth;				 		
+					 		selectedArea.width =-(secondSelectionX+selectionWidth-event.x);						
+							selectedArea.height = -(secondSelectionY-event.y);	
+							
+							tempx=event.x;
+							tempy=secondSelectionY;
+							tempwidth=secondSelectionX+selectionWidth-event.x;
+							tempheight=selectedArea.height;		
+							imageCanvasGC.setForeground(display
+									.getSystemColor(SWT.COLOR_WHITE));
+							drawImage(false);
+							imageChanged = true;
+							newSelection = false;
+							if (debug1) {
+								System.out.println("\nmouseUp calling showSelection "
+										+ "imageChanged=" + imageChanged);
+								System.out.printf("  \"%s\"\n", iv.getPartName());
+							}
+							showSelection(false);
+					 }
+					 
+					 else if(cornerSWselected){
+						 		
+					
+							selectedArea.x=secondSelectionX;
+							selectedArea.y=secondSelectionY;
+							selectedArea.width = event.x-secondSelectionX;						
+							selectedArea.height = event.y-secondSelectionY;	
+							tempx=selectedArea.x;
+							tempy=selectedArea.y;
+							tempwidth=selectedArea.width;
+							tempheight=selectedArea.height;
+						
+							
+							imageCanvasGC.setForeground(display
+									.getSystemColor(SWT.COLOR_WHITE));
+							drawImage(false);
+							imageChanged = true;
+							newSelection = false;
+							if (debug1) {
+								System.out.println("\nmouseUp calling showSelection "
+										+ "imageChanged=" + imageChanged);
+								System.out.printf("  \"%s\"\n", iv.getPartName());
+							}
+							showSelection(false);
+						
+						 
+					 }
 				}			
 			}
 		});
@@ -790,12 +920,32 @@ public class ImageComponentImage implements IImagesVarKeys {
 					clickonselection=true; 					
 				}
 				
+				 if(cornerNE){
+					cornerNEselected=true;
+					cornerResized=true;
+				}
+				 if(cornerNW){
+					cornerNWselected=true;
+					cornerResized=true;
+				}
+				 if(cornerSE){
+					cornerSEselected=true;
+					cornerResized=true;
+				}
+				 if(cornerSW){
+					cornerSWselected=true;
+					cornerResized=true;
+					
+				}
+				
 				
 				
 				
 			
 			}
-			public void mouseUp(MouseEvent ev) {								
+			public void mouseUp(MouseEvent ev) {			
+				
+				
 				//calculate the original coordinate of the first and the second point
 				if (!keydonwonselectionPTS1 && !keydonwonselectionPTS2 ){
 			
@@ -813,13 +963,13 @@ public class ImageComponentImage implements IImagesVarKeys {
 				}				
 						
 				clickonselection=false; 
-				 if (keydownOnSelection) {			//for ZOOM.AREA		
+			
+				
+				 if ((keydownOnSelection)  ) {			//for ZOOM.AREA		
 					 
-					 	//used for line
+				
 					 	movedX=ev.x-startX;
-					 	movedY=ev.y-startY;
-					 	//*************
-					 	
+					 	movedY=ev.y-startY;					 	
 					 	selectedArea.x=ev.x+secondSelectionX-startX;
 					 	varX=selectedArea.x;
 					 	selectedArea.y=ev.y+secondSelectionY-startY;
@@ -828,20 +978,21 @@ public class ImageComponentImage implements IImagesVarKeys {
 					 	if(!resizeMainBox){
 						selectedArea.width = selectionWidth;						
 						selectedArea.height = selectionHeight;	
-					 	}
-					 	
-				 	else{		
-				 		
-				 		
-				 
+					 	}					 	
+					 	else{		
 					 		selectedArea.width = tempwidth;						
 							selectedArea.height = tempheight;	
 							selectionWidth=tempwidth;
-							selectionHeight=tempheight;
-					
+							selectionHeight=tempheight;					
 							resizeMainBox=false;
 					 	}
-						
+					 	
+					 	secondSelectionX=secondSelectionX+movedX;
+					 	secondSelectionY=secondSelectionY+movedY;
+					 	
+
+					 	
+					 	
 						coordinateFirstPtsX=coordinateFirstPtsX+movedX; 		//recalculate point after moving			
 						coordinateFirstPtsY=coordinateFirstPtsY+movedY;				
 						coordinateSecondPtsX=coordinateSecondPtsX+movedX;					
@@ -867,10 +1018,9 @@ public class ImageComponentImage implements IImagesVarKeys {
 					
 				 }
 					
-				 else if ((xSelectionStart != ev.x || ySelectionStart != ev.y) && !keydownOnSelection && !movingpts1 && !movingpts2){ // on selecting AREA or LINE
+				 else if ((xSelectionStart != ev.x || ySelectionStart != ev.y) && !keydownOnSelection && !movingpts1 && !movingpts2 && !cornerResized){ // on selecting AREA or LINE	
 					 
-
-					 
+					
 						selectedArea.x = xSelectionStart; 
 						secondSelectionX=xSelectionStart;
 						selectedArea.y = ySelectionStart;
@@ -878,8 +1028,7 @@ public class ImageComponentImage implements IImagesVarKeys {
 						selectedArea.width = ev.x - selectedArea.x;
 						selectionWidth=selectedArea.width;
 						selectedArea.height = ev.y - selectedArea.y;
-						selectionHeight=selectedArea.height;	
-						
+						selectionHeight=selectedArea.height;							
 					
 						coordinateFirstPtsX=xSelectionStart; //coordinate of the first point
 						coordinateFirstPtsY=ySelectionStart;
@@ -968,11 +1117,48 @@ public class ImageComponentImage implements IImagesVarKeys {
 					
 					}
 				 
-
-				
 					
+				  if(cornerResized){
+					
+				 		selectedArea.x=tempx;
+				 		selectedArea.y=tempy;
+						selectedArea.width=tempwidth;
+						selectedArea.height=tempheight;	
+						selectionWidth=tempwidth;
+						selectionHeight=tempheight;		
+						cornerResized=false;
+						secondSelectionX=tempx;
+						secondSelectionY=tempy;		
+						
+						
+						RectangleSelection = new Rectangle(
+									selectedArea.x, selectedArea.y, selectedArea.width,
+									selectedArea.height);
+				
+
+						imageCanvasGC.setForeground(display
+								.getSystemColor(SWT.COLOR_WHITE));
+						drawImage(false);
+						imageChanged = true;
+						newSelection = true;
+						if (debug1) {
+							System.out.println("\nmouseUp calling showSelection "
+									+ "imageChanged=" + imageChanged);
+							System.out.printf("  \"%s\"\n", iv.getPartName());
+						}
+						showSelection(false);
+				 	}
+				 
+
+				 cornerNEselected=false;	
+				 cornerNWselected=false;	
+				 cornerSEselected=false;	
+				 cornerSWselected=false;	
+					
+			
 				 keydonwonselectionPTS1=false;// stop moving
 				 keydonwonselectionPTS2=false;
+			
 			 				 
 				if (image == null)
 					return;
@@ -1119,7 +1305,7 @@ public class ImageComponentImage implements IImagesVarKeys {
 				imageCanvasGC.setXORMode(true);
 				imageCanvasGC.drawRectangle(selectedArea);
 				imageCanvasGC.setXORMode(false);
-
+			
 			}
 			if (imageChanged || force) showSelectedArea(selectedArea, true);
 		selectOn = true;
@@ -2819,6 +3005,32 @@ public class ImageComponentImage implements IImagesVarKeys {
 		}
 		else return false;
 	}
+	
+	private boolean cornerTopLeftSelected(MouseEvent event,Rectangle RectangleSelection){
+		if(RectangleSelection.x-10<event.x && RectangleSelection.x>event.x && RectangleSelection.y-10<event.y && RectangleSelection.y>event.y )			
+		return true;
+		else return false;	
+	}
+	
+	private boolean cornerTopRightSelected(MouseEvent event,Rectangle RectangleSelection){
+		if(RectangleSelection.x+RectangleSelection.width<event.x && RectangleSelection.x+RectangleSelection.width+10>event.x && RectangleSelection.y-10<event.y && RectangleSelection.y>event.y )			
+		return true;
+		else return false;	
+	}
+	
+	private boolean cornerBottomLeftSelected(MouseEvent event,Rectangle RectangleSelection){
+		if(RectangleSelection.x-10<event.x && RectangleSelection.x>event.x && RectangleSelection.height+RectangleSelection.y<event.y && RectangleSelection.height+RectangleSelection.y+10>event.y )			
+		return true;
+		else return false;	
+	}
+	
+	private boolean cornerBottomRightSelected(MouseEvent event,Rectangle RectangleSelection){
+		if(RectangleSelection.x+RectangleSelection.width<event.x && RectangleSelection.x+RectangleSelection.width+10>event.x && RectangleSelection.height+RectangleSelection.y<event.y && RectangleSelection.height+RectangleSelection.y+10>event.y )			
+		return true;
+		else return false;	
+	}
+	
+
 
 	// Getters and setters
 
