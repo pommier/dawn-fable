@@ -687,6 +687,7 @@ public class ImageComponentImage implements IImagesVarKeys {
 							if(nbBoxSelected>=2 ){
 								secondSelectionX=varX;
 								secondSelectionY=varY;
+							
 							}									
 							if(resizeMainBox ){		
 								
@@ -697,12 +698,12 @@ public class ImageComponentImage implements IImagesVarKeys {
 									secondSelectionY=testy;																		
 								}
 							}
-							
-							
+						
 							drawImage(false);
 							Rectangle selectedRectangle = null;
 							selectedArea.x=event.x+secondSelectionX-startX;
 						 	selectedArea.y=event.y+secondSelectionY-startY;
+						 
 						 	
 							 selectedRectangle = new Rectangle(
 									selectedArea.x, selectedArea.y, selectedArea.width,
@@ -983,11 +984,6 @@ public class ImageComponentImage implements IImagesVarKeys {
 			
 				
 				 if ((keydownOnSelection)  ) {			//for ZOOM.AREA		
-					 
-					 
-				
-					 
-					 
 				
 					 	movedX=ev.x-startX;
 					 	movedY=ev.y-startY;					 	
@@ -1008,8 +1004,7 @@ public class ImageComponentImage implements IImagesVarKeys {
 							resizeMainBox=false;
 					 	}
 					 	
-					 	
-					 	
+			 	
 					 	secondSelectionX=secondSelectionX+movedX;
 					 	secondSelectionY=secondSelectionY+movedY;
 					 	
@@ -1055,18 +1050,40 @@ public class ImageComponentImage implements IImagesVarKeys {
 					
 				 else if ((xSelectionStart != ev.x || ySelectionStart != ev.y) && !keydownOnSelection && !movingpts1 && !movingpts2 && !cornerResized){ // on selecting AREA or LINE	
 					
-					
-						selectedArea.x = xSelectionStart; 
+					 
+					 	selectedArea.x = xSelectionStart; 
 						secondSelectionX=xSelectionStart;
 						selectedArea.y = ySelectionStart;
 						secondSelectionY=ySelectionStart;
 						selectedArea.width = ev.x - selectedArea.x;
 						selectionWidth=selectedArea.width;
 						selectedArea.height = ev.y - selectedArea.y;
-						selectionHeight=selectedArea.height;							
-					
-						coordinateFirstPtsX=xSelectionStart; //coordinate of the first point
+						selectionHeight=selectedArea.height;	
+						
+						/** If box is drawing from right to left **/
+						if(selectedArea.width<0 ){
+							RectangleSelection= new Rectangle(selectedArea.x+selectedArea.width,selectedArea.y,-selectionWidth,selectionHeight);
+							selectedArea.x =selectedArea.x+selectedArea.width;
+							secondSelectionX=selectedArea.x;
+							selectedArea.width = -selectedArea.width;
+							selectionWidth=selectedArea.width;		
+						}
+						
+						/** If box is drawing from bottom to top **/
+						if(selectedArea.height<0 ){
+							RectangleSelection= new Rectangle(selectedArea.x,selectedArea.y+selectedArea.height ,selectionWidth,-selectionHeight);
+							selectedArea.y =selectedArea.y+selectedArea.height;
+							secondSelectionY=selectedArea.y;
+							selectedArea.height = -selectedArea.height;
+							selectionHeight=selectedArea.height;	
+						
+						}
+						
+	
+						/** Coordinate of the first point (line selection)**/
+						coordinateFirstPtsX=xSelectionStart;
 						coordinateFirstPtsY=ySelectionStart;
+						/** Coordinate of the second point (line selection)**/
 						coordinateSecondPtsX=xSelectionStart+selectionWidth;//coordinate of the second point
 						coordinateSecondPtsY=ySelectionStart+selectionHeight;
 												
@@ -1084,10 +1101,9 @@ public class ImageComponentImage implements IImagesVarKeys {
 					
 					}
 				 
+				 
+				 
 				 else if ((xSelectionStart != ev.x || ySelectionStart != ev.y) && !keydownOnSelection && movingpts1){ // on selecting AREA or LINE / if  moving first point
-		
-
-					 
 					 	selectedArea.x=ev.x;
 					 	secondSelectionX=ev.x;
 						selectedArea.y = ev.y;
@@ -1097,10 +1113,11 @@ public class ImageComponentImage implements IImagesVarKeys {
 						selectedArea.height = coordinateSecondPtsY-ev.y ;
 						selectionHeight=selectedArea.height;
 												
-						coordinateFirstPtsX=ev.x; //coordinate of the first point
+						coordinateFirstPtsX=ev.x; 
 						coordinateFirstPtsY=ev.y;
 						
-						firstSelectionLineX=ev.x;//recalculate the first point to display it when moving it
+						/**recalculate the first point to display it when moving it**/
+						firstSelectionLineX=ev.x;
 						firstSelectionLineY=ev.y;
 					
 						imageCanvasGC.setForeground(display
@@ -3087,22 +3104,6 @@ public class ImageComponentImage implements IImagesVarKeys {
 		else return false;	
 	}
 	
-	
-	private Rectangle redrawRectangleSelection(Rectangle RectangleSelection){
-		
-		if(RectangleSelection.width<0){
-			System.out.println("negatif detected");
-			RectangleSelection.width=-RectangleSelection.width;
-			RectangleSelection.x=RectangleSelection.x-RectangleSelection.width;
-		
-			
-			return RectangleSelection;		
-		}
-		System.out.println("nothing");
-		
-		
-		 return RectangleSelection;	
-	}
 	
 
 
