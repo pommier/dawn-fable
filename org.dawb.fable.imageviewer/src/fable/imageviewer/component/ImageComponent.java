@@ -351,14 +351,16 @@ public class ImageComponent implements IPropertyChangeListener,
 	 * (non-Javadoc)
 	 * 
 	 * @see org.eclipse.ui.part.WorkbenchPart#setFocus()
+	 * 
 	 */
-	public void setFocus() {
 	
-		if (getSecondaryId()==SECONDARY_ID_MAIN || ImageComponentImage.refreshfocus==SECONDARY_ID_MAIN){
 	
+	public  void setFocus() {
+	
+	//	if (getSecondaryId()==SECONDARY_ID_MAIN || ImageComponentImage.refreshfocus==SECONDARY_ID_MAIN){
+		if (getSecondaryId()==SECONDARY_ID_MAIN){
 			Zoombox=false;
-	
-			
+
 		}
 		else	{
 
@@ -821,17 +823,16 @@ public class ImageComponent implements IPropertyChangeListener,
 	public void transferSelectedSettings(ImageComponent src, ImageComponentImage imageComponentImage,Rectangle selectedArea) {
 	
 
-			
-
-		if(Zoombox ){
-		
-			SaveImageComponentImage.changeboxsize(selectedArea);
-		}
-		
 	
+		if(ImageComponentImage.viewmain==true){
+			
 		
-		else {	SaveImageComponentImage =imageComponentImage;
-		
+			SaveImageComponentImage =imageComponentImage;
+		}
+	
+		else 
+		{	
+			SaveImageComponentImage.changeboxsize(selectedArea);
 		}
 	
 		this.setOrientation(src.getOrientation());

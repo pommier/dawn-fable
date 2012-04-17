@@ -269,6 +269,7 @@ public class ImageComponentImage implements IImagesVarKeys {
 	private int recordResizeY;
 	private boolean hasCoordinateTransfer=false;
 	public static String refreshfocus;
+	public static boolean viewmain;
 	private  IWorkbenchPart3 parentPart;
 	
 
@@ -463,7 +464,6 @@ public class ImageComponentImage implements IImagesVarKeys {
 								|| zoomSelection == ZoomSelection.RELIEF
 								|| zoomSelection == ZoomSelection.ROCKINGCURVE) {
 							
-							
 							Rectangle selectedRectangle = new Rectangle(
 									xSelectionStart, ySelectionStart, width,
 									height);
@@ -497,6 +497,7 @@ public class ImageComponentImage implements IImagesVarKeys {
 					if (RectangleSelection!=null){
 									
 					if ((iv.getZoomSelection() == ZoomSelection.AREA) && inselectbox(event,RectangleSelection) && (iv.getSecondaryId()=="Main")){//worked if on main windows
+					
 						cursor = display.getSystemCursor(SWT.CURSOR_HAND);
 						imageCanvas.setCursor(cursor);
 						intoselection=true;												
@@ -507,6 +508,7 @@ public class ImageComponentImage implements IImagesVarKeys {
 						intoselection=true;												
 					}					
 					else if ((iv.getZoomSelection() == ZoomSelection.PROFILE) && inselectbox(event,RectangleSelection) ){
+					
 						cursor = display.getSystemCursor(SWT.CURSOR_HAND);
 						imageCanvas.setCursor(cursor);
 						intoselection=true;												
@@ -900,9 +902,16 @@ public class ImageComponentImage implements IImagesVarKeys {
 
 			public void mouseDown(MouseEvent ev) {
 		
-			refreshfocus=iv.getSecondaryId();			
-	
-
+			refreshfocus=iv.getSecondaryId();		
+			
+			if (iv.getSecondaryId()=="Main"){
+				viewmain=true;
+		
+			}
+			
+			else viewmain=false;
+			
+			
 				if (image == null)
 					return;
 				
@@ -1421,9 +1430,13 @@ public class ImageComponentImage implements IImagesVarKeys {
 			}
 			if (imageChanged || force) showSelectedLine();
 			selectOn = true;
+			
 		} else if (zoomSelection == ZoomSelection.PROFILE) {
+			System.out.println("show selection");
 			if (!force) {
+			
 				imageCanvasGC.drawRectangle(selectedArea);
+		
 			}
 			if (imageChanged || force) showProfile();
 			selectOn = true;
@@ -1981,6 +1994,7 @@ public class ImageComponentImage implements IImagesVarKeys {
 	 * profiles with ZoomLineView.
 	 */
     private void showProfile() {
+    	System.out.println("appel");
 		int x1, x2, y1, y2;
 		// We want the rectangle to be ordered. Use true for ordered.
 		Rectangle lineRect = screenRectangleToOrientedImageRectangle(
