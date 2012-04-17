@@ -55,6 +55,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPart3;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
@@ -245,15 +246,15 @@ public class ImageComponentImage implements IImagesVarKeys {
 	private int coordinateSecondPtsY;
 	private int movedX;
 	private int movedY;
-	private int tempWidth;
-	private int tempHeight;
-	private int tempWidthArea;
-	private int tempHeightArea;
+	private int widthSave;
+	private int heightSave;
+	private int widthareaSave;
+	private int heightareaSave;
 	private boolean resizeMainBox=false;
-	private int tempx;
-	private int tempy;
-	private int tempwidth;
-	private int tempheight;
+	private int transferCoordinateX;
+	private int transferCoordinateY;
+	private int transferWidth;
+	private int transferHeight;
 	private boolean cornerNE;
 	private boolean cornerNW;
 	private boolean cornerSE;
@@ -264,9 +265,12 @@ public class ImageComponentImage implements IImagesVarKeys {
 	private boolean cornerSWselected;
 	private boolean cornerResized;
 	private boolean coordinateInverted;
-	private int testx;
-	private int testy;
-	private boolean testbool=false;
+	private int recordResizeX;
+	private int recordResizeY;
+	private boolean hasCoordinateTransfer=false;
+	public static String refreshfocus;
+	private  IWorkbenchPart3 parentPart;
+	
 
 	private Rectangle RectangleSelection;
 	public static GC imageCanvasCopyGC;
@@ -298,7 +302,8 @@ public class ImageComponentImage implements IImagesVarKeys {
 	
 	
 	public  void changeboxsize(Rectangle selectedAreaSaved){
-		testbool=true;		
+		
+		hasCoordinateTransfer=true;			
 		resizeMainBox=true;
 		Rectangle resizebox;
 		resizebox=ImageRectangleToscreenRectangle(selectedAreaSaved,true);	
@@ -313,11 +318,12 @@ public class ImageComponentImage implements IImagesVarKeys {
 	 	
 	 	secondSelectionX=resizebox.x;
 	 	secondSelectionY=resizebox.y;
+	
 	 	
-	 	tempx=selectedArea.x;
-	 	tempy=selectedArea.y;
-	 	tempwidth=selectedArea.width;
-	 	tempheight=selectedArea.height;
+	 	transferCoordinateX=selectedArea.x;
+	 	transferCoordinateY=selectedArea.y;
+	 	transferWidth=selectedArea.width;
+	 	transferHeight=selectedArea.height;
 	 	selectionWidth=selectedArea.width;
 	 	selectionHeight=selectedArea.height;
 	 	
@@ -435,6 +441,8 @@ public class ImageComponentImage implements IImagesVarKeys {
 					// System.out.println(ImageComponent.shareFocus);
 				
 					if (selectingOn && !keydownOnSelection && !cornerSWselected && !cornerSEselected && !cornerNWselected && !cornerNEselected) {
+	
+		
 						
 						cursor = display.getSystemCursor(SWT.CURSOR_HAND);
 						imageCanvas.setCursor(cursor);
@@ -578,10 +586,10 @@ public class ImageComponentImage implements IImagesVarKeys {
 						movingpts1=true;
 						movingpts2=false;
 						
-						tempWidth=selectionWidth;//record coordinate
-						tempHeight=selectionHeight;
-						tempWidthArea=selectedArea.width;
-						tempHeightArea=selectedArea.height;
+						widthSave=selectionWidth;//record coordinate
+						heightSave=selectionHeight;
+						widthareaSave=selectedArea.width;
+						heightareaSave=selectedArea.height;
 						
 					 	selectedArea.x=event.x;
 						selectedArea.y = event.y;
@@ -594,10 +602,10 @@ public class ImageComponentImage implements IImagesVarKeys {
 						newSelection = true;										
 						showSelectedLine();
 						
-						selectionWidth=tempWidth; //Re-place old coordinate for the next
-						selectionHeight=tempHeight;
-						selectedArea.width=tempWidthArea;
-						selectedArea.height=tempHeightArea;
+						selectionWidth=widthSave; //Re-place old coordinate for the next
+						selectionHeight=heightSave;
+						selectedArea.width=widthareaSave;
+						selectedArea.height=heightareaSave;
 						
 					}
 					
@@ -617,10 +625,10 @@ public class ImageComponentImage implements IImagesVarKeys {
 						movingpts2=true;
 							
 						
-						tempWidth=selectionWidth;//record coordinate
-						tempHeight=selectionHeight;
-						tempWidthArea=selectedArea.width;
-						tempHeightArea=selectedArea.height;
+						widthSave=selectionWidth;//record coordinate
+						heightSave=selectionHeight;
+						widthareaSave=selectedArea.width;
+						heightareaSave=selectedArea.height;
 						
 						selectedArea.x=coordinateFirstPtsX;		//change coordinate to display			
 						selectedArea.y = coordinateFirstPtsY;						
@@ -633,10 +641,10 @@ public class ImageComponentImage implements IImagesVarKeys {
 						newSelection = true;										
 						showSelectedLine();
 						
-						selectionWidth=tempWidth; //Re-place old coordinate for the next
-						selectionHeight=tempHeight;
-						selectedArea.width=tempWidthArea;
-						selectedArea.height=tempHeightArea;		
+						selectionWidth=widthSave; //Re-place old coordinate for the next
+						selectionHeight=heightSave;
+						selectedArea.width=widthareaSave;
+						selectedArea.height=heightareaSave;		
 					}								
 					 if(clickonselection && (iv.getZoomSelection() == ZoomSelection.RELIEF)){
 				
@@ -684,23 +692,25 @@ public class ImageComponentImage implements IImagesVarKeys {
 						//if click on Area box
 					 else if (clickonselection){						
 							//if moves again the box re calculate coordinates
+						
 							if(nbBoxSelected>=2 ){
 								secondSelectionX=varX;
 								secondSelectionY=varY;
-							
-							}									
-							if(resizeMainBox ){		
 								
-								secondSelectionX=tempx;
-								secondSelectionY=tempy;		
+							}									
+							if(resizeMainBox ){										
+								secondSelectionX=transferCoordinateX;
+								secondSelectionY=transferCoordinateY;		
 								if (coordinateInverted) {
-									secondSelectionX=testx;
-									secondSelectionY=testy;																		
+									secondSelectionX=recordResizeX;
+									secondSelectionY=recordResizeY;																		
 								}
+								
 							}
 						
 							drawImage(false);
 							Rectangle selectedRectangle = null;
+							//System.out.println(secondSelectionX);
 							selectedArea.x=event.x+secondSelectionX-startX;
 						 	selectedArea.y=event.y+secondSelectionY-startY;
 						 
@@ -733,10 +743,10 @@ public class ImageComponentImage implements IImagesVarKeys {
 					 		selectedArea.width =-(secondSelectionX+selectionWidth-event.x);						
 							selectedArea.height = -(secondSelectionY+selectionHeight-event.y);
 							
-							tempx=event.x;
-							tempy=event.y;
-							tempwidth=secondSelectionX+selectionWidth-event.x;
-							tempheight=secondSelectionY+selectionHeight-event.y;		
+							transferCoordinateX=event.x;
+							transferCoordinateY=event.y;
+							transferWidth=secondSelectionX+selectionWidth-event.x;
+							transferHeight=secondSelectionY+selectionHeight-event.y;		
 							
 							imageCanvasGC.setForeground(display
 									.getSystemColor(SWT.COLOR_WHITE));
@@ -760,10 +770,10 @@ public class ImageComponentImage implements IImagesVarKeys {
 					 		selectedArea.width =-(secondSelectionX-event.x);						
 							selectedArea.height = -(secondSelectionY+selectionHeight-event.y);
 							
-							tempx=secondSelectionX;
-							tempy=event.y;
-							tempwidth=selectedArea.width;
-							tempheight=secondSelectionY+selectionHeight-event.y;		
+							transferCoordinateX=secondSelectionX;
+							transferCoordinateY=event.y;
+							transferWidth=selectedArea.width;
+							transferHeight=secondSelectionY+selectionHeight-event.y;		
 							
 							imageCanvasGC.setForeground(display
 									.getSystemColor(SWT.COLOR_WHITE));
@@ -787,10 +797,10 @@ public class ImageComponentImage implements IImagesVarKeys {
 					 		selectedArea.width =-(secondSelectionX+selectionWidth-event.x);						
 							selectedArea.height = -(secondSelectionY-event.y);	
 							
-							tempx=event.x;
-							tempy=secondSelectionY;
-							tempwidth=secondSelectionX+selectionWidth-event.x;
-							tempheight=selectedArea.height;		
+							transferCoordinateX=event.x;
+							transferCoordinateY=secondSelectionY;
+							transferWidth=secondSelectionX+selectionWidth-event.x;
+							transferHeight=selectedArea.height;		
 							
 							
 							imageCanvasGC.setForeground(display
@@ -813,10 +823,10 @@ public class ImageComponentImage implements IImagesVarKeys {
 							selectedArea.y=secondSelectionY;
 							selectedArea.width = event.x-secondSelectionX;						
 							selectedArea.height = event.y-secondSelectionY;	
-							tempx=selectedArea.x;
-							tempy=selectedArea.y;
-							tempwidth=selectedArea.width;
-							tempheight=selectedArea.height;
+							transferCoordinateX=selectedArea.x;
+							transferCoordinateY=selectedArea.y;
+							transferWidth=selectedArea.width;
+							transferHeight=selectedArea.height;
 						
 							
 							imageCanvasGC.setForeground(display
@@ -890,8 +900,9 @@ public class ImageComponentImage implements IImagesVarKeys {
 
 			public void mouseDown(MouseEvent ev) {
 		
+			refreshfocus=iv.getSecondaryId();			
+	
 
-			
 				if (image == null)
 					return;
 				
@@ -984,7 +995,7 @@ public class ImageComponentImage implements IImagesVarKeys {
 			
 				
 				 if ((keydownOnSelection)  ) {			//for ZOOM.AREA		
-				
+			
 					 	movedX=ev.x-startX;
 					 	movedY=ev.y-startY;					 	
 					 	selectedArea.x=ev.x+secondSelectionX-startX;
@@ -997,10 +1008,10 @@ public class ImageComponentImage implements IImagesVarKeys {
 						selectedArea.height = selectionHeight;	
 					 	}					 	
 					 	else{		
-					 		selectedArea.width = tempwidth;						
-							selectedArea.height = tempheight;	
-							selectionWidth=tempwidth;
-							selectionHeight=tempheight;					
+					 		selectedArea.width = transferWidth;						
+							selectedArea.height = transferHeight;	
+							selectionWidth=transferWidth;
+							selectionHeight=transferHeight;					
 							resizeMainBox=false;
 					 	}
 					 	
@@ -1008,7 +1019,7 @@ public class ImageComponentImage implements IImagesVarKeys {
 					 	secondSelectionX=secondSelectionX+movedX;
 					 	secondSelectionY=secondSelectionY+movedY;
 					 	
-					 	if (coordinateInverted && testbool) {
+					 	if (coordinateInverted && hasCoordinateTransfer) {
 				
 					 		if(selectedArea.width<0){	
 					 			selectedArea.width = -selectedArea.width;	
@@ -1019,7 +1030,7 @@ public class ImageComponentImage implements IImagesVarKeys {
 					 			selectedArea.height = -selectedArea.height;	
 					 			selectionHeight=-selectionHeight;	
 					 		}
-							testbool=false;																
+							hasCoordinateTransfer=false;																
 							}
 					
 					 	
@@ -1172,36 +1183,36 @@ public class ImageComponentImage implements IImagesVarKeys {
 					
 				  if(cornerResized){
 					  			  					
-				 		selectedArea.x=tempx;
-				 		selectedArea.y=tempy;
-						selectedArea.width=tempwidth;
-						selectedArea.height=tempheight;	
-						selectionWidth=tempwidth;
-						selectionHeight=tempheight;		
+				 		selectedArea.x=transferCoordinateX;
+				 		selectedArea.y=transferCoordinateY;
+						selectedArea.width=transferWidth;
+						selectedArea.height=transferHeight;	
+						selectionWidth=transferWidth;
+						selectionHeight=transferHeight;		
 						cornerResized=false;
-						secondSelectionX=tempx;
-						secondSelectionY=tempy;		
+						secondSelectionX=transferCoordinateX;
+						secondSelectionY=transferCoordinateY;		
 						
-						if(tempwidth<0){
+						if(transferWidth<0){
 							
-						selectedArea.x=tempx+tempwidth;
-						secondSelectionX=tempx+tempwidth;
-						selectedArea.width=-tempwidth;
-						selectionWidth=-tempwidth;
+						selectedArea.x=transferCoordinateX+transferWidth;
+						secondSelectionX=transferCoordinateX+transferWidth;
+						selectedArea.width=-transferWidth;
+						selectionWidth=-transferWidth;
 						coordinateInverted=true;
 						}
 						
-						if(tempheight<0){
+						if(transferHeight<0){
 							
-						selectedArea.y=tempy+tempheight;
-						secondSelectionY=tempy+tempheight;
-						selectedArea.height=-tempheight;
-						selectionHeight=-tempheight;
+						selectedArea.y=transferCoordinateY+transferHeight;
+						secondSelectionY=transferCoordinateY+transferHeight;
+						selectedArea.height=-transferHeight;
+						selectionHeight=-transferHeight;
 						coordinateInverted=true;						
 						}
 						
-						testx=selectedArea.x;
-						testy=selectedArea.y;
+						recordResizeX=selectedArea.x;
+						recordResizeY=selectedArea.y;
 						
 						
 						RectangleSelection = new Rectangle(
@@ -1625,7 +1636,7 @@ public class ImageComponentImage implements IImagesVarKeys {
 	 */
 	private void showSelectedArea(Rectangle rect, boolean screen) {
 	
-
+	
 		//System.out.println(ImageComponent.);
 		// if (debug || debug1) {
 		// System.out.printf(
@@ -1713,7 +1724,7 @@ public class ImageComponentImage implements IImagesVarKeys {
 									.getSecondaryId()
 									+ " Diff " + iv.getFileName());
 						}
-				
+					
 						zoomAreaView.transferSelectedSettings(iv,this,origRect);
 					}
 				
@@ -3204,5 +3215,7 @@ public class ImageComponentImage implements IImagesVarKeys {
 	public void setSelectedRectangle(GC selectedRectangle) {
 		this.selectedRectangle = selectedRectangle;
 	}
+	
+
 
 }

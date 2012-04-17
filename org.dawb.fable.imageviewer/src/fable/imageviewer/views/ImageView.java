@@ -172,6 +172,7 @@ public class ImageView extends ViewPart implements IImagesVarKeys, ActionsProvid
 	 */
 	@Override
 	public void setFocus() {
+	
 		if (imageComponent!=null) imageComponent.setFocus();
 	}
 
@@ -188,12 +189,14 @@ public class ImageView extends ViewPart implements IImagesVarKeys, ActionsProvid
 	 * @return the secondary ID of this instance.
 	 */
 	public String getSecondaryId() {
+		
 		String id2 = null;
 		try {
 			id2 = getViewSite().getSecondaryId();
 		} catch (Exception ex) {
 			// Do nothing
 		}
+		
 		return id2;
 	}
 

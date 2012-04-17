@@ -295,7 +295,7 @@ public class ImageComponent implements IPropertyChangeListener,
 	/**
 	 * The parent part, either a view or an editor.
 	 */
-	private IWorkbenchPart3 parentPart;
+	private   IWorkbenchPart3 parentPart;
 	private ActionsProvider provider;
 	private Text            statusLabel;
 	
@@ -343,25 +343,27 @@ public class ImageComponent implements IPropertyChangeListener,
 		controls = new ImageComponentUI(this);
 		controls.setStatusLabel(statusLabel);
 		controls.createControls(parent);
-		  
-		
-		
-
 	}
 
+
+	
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see org.eclipse.ui.part.WorkbenchPart#setFocus()
 	 */
 	public void setFocus() {
-		
-
-		if (getSecondaryId()==SECONDARY_ID_MAIN){
+	
+		if (getSecondaryId()==SECONDARY_ID_MAIN || ImageComponentImage.refreshfocus==SECONDARY_ID_MAIN){
+	
 			Zoombox=false;
+	
 			
 		}
-		else	Zoombox=true;
+		else	{
+
+			Zoombox=true;
+		}
 			
 		focus=ImageComponent.SECONDARY_ID_MAIN;
 		
@@ -387,7 +389,6 @@ public class ImageComponent implements IPropertyChangeListener,
 	 */
 	@Override
 	public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-		
 		// DEBUG
 		// System.out.println("\n>>>Entering selectionChanged");
 		if (selection instanceof IStructuredSelection) {
@@ -819,15 +820,18 @@ public class ImageComponent implements IPropertyChangeListener,
 	 */
 	public void transferSelectedSettings(ImageComponent src, ImageComponentImage imageComponentImage,Rectangle selectedArea) {
 	
-	
-		if(!Zoombox){
-			SaveImageComponentImage =imageComponentImage;
+
+			
+
+		if(Zoombox ){
+		
+			SaveImageComponentImage.changeboxsize(selectedArea);
 		}
 		
-		else{
- 
-			SaveImageComponentImage.changeboxsize(selectedArea);
-			
+	
+		
+		else {	SaveImageComponentImage =imageComponentImage;
+		
 		}
 	
 		this.setOrientation(src.getOrientation());
@@ -1373,7 +1377,7 @@ public class ImageComponent implements IPropertyChangeListener,
 	/**
 	 * @return the secondary ID of this instance.
 	 */
-	public String getSecondaryId() {
+	public   String getSecondaryId() {
 		String id2 = null;
 		try {
 			if (parentPart instanceof IViewPart) {
